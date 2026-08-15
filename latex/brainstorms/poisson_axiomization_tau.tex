@@ -1,0 +1,560 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\allowdisplaybreaks
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{assumption}{Assumption}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\1}{\mathbf{1}}
+\newcommand{\plim}{\mathop{\mathrm{plim}}}
+\newcommand{\R}{\mathbb{R}}
+
+\title{Design-based interpretation of Poisson regression}
+\author{Georgy Kalashnov, Lihua Lei}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Setup}
+
+Let $(Y_i,W_i,X_i)_{i=1}^n$ be an i.i.d. sample, where $W_i\in\{0,1\}$ and $Y_i=Y_i(W_i)\ge 0$. We suppress the unit subscript below and will denote a generic observation by $(Y,W,X)$.
+
+\begin{assumption}[Potential outcomes]
+The data satisfy:
+\begin{enumerate}[label=(\roman*)]
+    \item \textbf{Unconfoundedness:} $(Y(0),Y(1)) \perp W \mid X$.
+    \item \textbf{Overlap:} $e(X):=\Pr(W=1\mid X)\in(0,1)$ almost surely.
+    \item \textbf{Integrability:} $\E[Y(0)+Y(1)]<\infty$.
+\end{enumerate}
+\end{assumption}
+
+Let $m_w(x):=\E[Y(w)\mid X=x]$, so that $m_w(x)=\E[Y\mid W=w,X=x]$ under Assumption 1.
+
+For $\tau\in\R$ let $D_\tau(X):=(1-e(X))+e(X)e^{\tau}$ and define the two population weights
+\begin{equation}
+\pi_\tau(X):=\frac{e(X)e^{\tau}}{D_\tau(X)},
+\qquad
+\phi_\tau(X):=\frac{e(X)(1-e(X))}{D_\tau(X)}.
+\label{eq:defweights}
+\end{equation}
+The quantity $\pi_\tau(X)$ is the \emph{tilted propensity score}: it is the mean of $W$ under the tilted law
+\[
+\Pr\nolimits_\tau(W=w\mid X):=\frac{e^{\tau w}\Pr(W=w\mid X)}{D_\tau(X)},
+\qquad w\in\{0,1\},
+\]
+since $\Pr_\tau(W=1\mid X)=\pi_\tau(X)$.
+In the Poisson model with log link,
+\[
+\exp\{h(X)+\tau W\}=\mu_0(X)e^{\tau W},
+\]
+where $\mu_0(X)=\exp\{h(X)\}\ge 0$.
+
+Throughout we use the two identities
+\[
+e(X)\bigl(1-\pi_\tau(X)\bigr)=\phi_\tau(X),
+\qquad
+\bigl(1-e(X)\bigr)\pi_\tau(X)=e^{\tau}\phi_\tau(X),
+\]
+both immediate from \eqref{eq:defweights}.  Consequently, for any measurable $g_0,g_1$,
+\begin{equation}
+\begin{aligned}
+\E\bigl[(W-\pi_\tau(X))\,g_W(X)\mid X\bigr]
+&= e(X)\bigl(1-\pi_\tau(X)\bigr)g_1(X)-\bigl(1-e(X)\bigr)\pi_\tau(X)g_0(X)
+\\
+&= \phi_\tau(X)\bigl\{g_1(X)-e^{\tau}g_0(X)\bigr\}.
+\end{aligned}
+\label{eq:keyidentity}
+\end{equation}
+
+\section{Design-Based Assumption}
+
+\begin{proposition}
+\label{prop:reduction}
+Suppose Assumption 1 holds. Let $\tau^\star\in\R$ and a measurable function $\mu_0^\star(X)\ge 0$ satisfy the population first-order conditions
+\begin{align}
+\E\big[Y-\mu_0^\star(X)e^{\tau^\star W}\mid X\big] &= 0 \quad \text{a.s.},
+\label{eq:condFOC}
+\\
+\E\big[W\{Y-\mu_0^\star(X)e^{\tau^\star W}\}\big] &= 0.
+\label{eq:treatFOC}
+\end{align}
+Then
+\begin{equation}
+\E\Big[\phi_{\tau^\star}(X)\bigl\{m_1(X)-e^{\tau^\star}m_0(X)\bigr\}\Big]=0.
+\label{eq:pseudotrue}
+\end{equation}
+If in addition $\E[\phi_{\tau^\star}(X)Y(0)]>0$, then
+\begin{equation}
+\tau^\star=\log\frac{\E[\phi_{\tau^\star}(X)\,Y(1)]}{\E[\phi_{\tau^\star}(X)\,Y(0)]} .
+\label{eq:expostratio}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Since $\pi_{\tau^\star}(X)$ is a measurable function of $X$, multiplying \eqref{eq:condFOC} by it and using the law of iterated expectations gives
+\[
+\E\Big[\pi_{\tau^\star}(X)\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]
+=
+\E\Big[\pi_{\tau^\star}(X)\,\E\bigl[Y-\mu_0^\star(X)e^{\tau^\star W}\mid X\bigr]\Big]
+=0 .
+\]
+Subtracting this from \eqref{eq:treatFOC},
+\begin{equation}
+\E\Big[(W-\pi_{\tau^\star}(X))\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0,
+\label{eq:firstsubtraction}
+\end{equation}
+that is,
+\[
+\E\bigl[(W-\pi_{\tau^\star}(X))\,Y\bigr]
+=
+\E\bigl[(W-\pi_{\tau^\star}(X))\,\mu_0^\star(X)e^{\tau^\star W}\bigr].
+\]
+The right-hand side is equal to 0.  The fitted value $\mu_0^\star(X)e^{\tau^\star W}$ equals $g_W(X)$ for $g_0=\mu_0^\star$ and $g_1=\mu_0^\star e^{\tau^\star}$, so \eqref{eq:keyidentity} gives
+\[
+\E\Big[(W-\pi_{\tau^\star}(X))\,\mu_0^\star(X)e^{\tau^\star W}\;\Big|\;X\Big]
+=
+\phi_{\tau^\star}(X)\bigl\{\mu_0^\star(X)e^{\tau^\star}-e^{\tau^\star}\mu_0^\star(X)\bigr\}
+=0 ,
+\]
+and taking expectations over $X$ leaves
+\begin{equation}
+\E\bigl[(W-\pi_{\tau^\star}(X))\,Y\bigr]=0 .
+\label{eq:residualized}
+\end{equation}
+
+By unconfoundedness $\E[WY\mid X]=e(X)m_1(X)$ and $\E[Y\mid X]=\E[m_W(X)\mid X]$, so $Y$ may be replaced by $m_W(X)$ in the last display, and \eqref{eq:keyidentity} with $g_w=m_w$ gives \eqref{eq:pseudotrue}.
+
+By Assumption 1 and iterated expectations, $\E[\phi_{\tau^\star}(X)m_w(X)]=\E[\phi_{\tau^\star}(X)Y(w)]$, so \eqref{eq:pseudotrue} gives
+\[
+\E\bigl[\phi_{\tau^\star}(X)Y(1)\bigr]=e^{\tau^\star}\,\E\bigl[\phi_{\tau^\star}(X)Y(0)\bigr],
+\]
+which gives \eqref{eq:expostratio} since $\E[\phi_{\tau^\star}(X)Y(0)]>0$.
+\end{proof}
+
+The same conclusions hold with a restricted control function, under a design-based condition on the propensity score alone.
+
+\begin{corollary}
+\label{cor:finite}
+Let $R(X)\in\R^K$ be the vector of included controls, containing a constant, and let $(\beta^\star,\tau^\star)$ solve the population Poisson moment conditions
+\begin{equation}
+\E\Big[R(X)\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0,
+\qquad
+\E\Big[W\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0,
+\label{eq:finiteFOC}
+\end{equation}
+where $\mu_0^\star(X):=\exp\{R(X)'\beta^\star\}$.  Suppose
+\begin{equation}
+\pi_{\tau^\star}(X)=\operatorname{expit}\bigl(\operatorname{logit}e(X)+\tau^\star\bigr)\in \mathrm{span}(R(X))
+\qquad \text{almost surely.}
+\label{eq:spancondition}
+\end{equation}
+Then the conclusions of Proposition \ref{prop:reduction} hold.  If the sample Poisson estimator $(\hat\beta,\hat\tau)$ is consistent, its limit $\tau^\star$ is characterized by \eqref{eq:pseudotrue} and \eqref{eq:expostratio}.
+\end{corollary}
+
+\begin{proof}
+By \eqref{eq:spancondition} there is $\lambda^\star\in\R^K$ with $\pi_{\tau^\star}(X)=R(X)'\lambda^\star$ almost surely, so the first condition in \eqref{eq:finiteFOC} gives
+\[
+\E\Big[\pi_{\tau^\star}(X)\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]
+=\lambda^{\star\prime}\,\E\Big[R(X)\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0 .
+\]
+Subtracting this from the second condition in \eqref{eq:finiteFOC},
+\[
+\E\Big[(W-\pi_{\tau^\star}(X))\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0 ,
+\]
+which is \eqref{eq:firstsubtraction}, that is,
+\[
+\E\bigl[(W-\pi_{\tau^\star}(X))\,Y\bigr]
+=
+\E\bigl[(W-\pi_{\tau^\star}(X))\,\mu_0^\star(X)e^{\tau^\star W}\bigr].
+\]
+The right-hand side equals 0: \eqref{eq:keyidentity} with $g_0=\mu_0^\star$ and $g_1=\mu_0^\star e^{\tau^\star}$ gives
+\[
+\E\Big[(W-\pi_{\tau^\star}(X))\,\mu_0^\star(X)e^{\tau^\star W}\;\Big|\;X\Big]
+=
+\phi_{\tau^\star}(X)\bigl\{\mu_0^\star(X)e^{\tau^\star}-e^{\tau^\star}\mu_0^\star(X)\bigr\}
+=0 ,
+\]
+so taking expectations over $X$ gives \eqref{eq:residualized}.  The remainder of that proof applies unchanged.
+\end{proof}
+
+\begin{remark}
+Ex-ante weights are expected values of ex-post weights:
+\[
+\E\big[\{1-\pi_{\tau^\star}(X)\}W \,\big|\, X\big] = \phi_{\tau^\star}(X) .
+\]
+
+Additionally, this is also true under linearity constraints: in the restricted-control-function setting below, if $a^\star(X)=\pi_{\tau^\star}(X)$, which is valid whenever $\pi_{\tau^\star}(X)\in\mathrm{span}(R(X))$ as in Corollary \ref{cor:finite}, then $\E\big[\{1-a^\star(X)\}W \,\big|\, X\big] = \phi_{\tau^\star}(X)$ as well.
+\end{remark}
+
+\section{Model-Based Assumption}
+Let $R(X)\in\R^K$ be the vector of included controls, containing a constant, and let $(\beta^\star,\tau^\star)$ solve the population Poisson moment conditions
+\begin{equation}
+\E\Big[R(X)\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0,
+\qquad
+\E\Big[W\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0,
+\label{eq:poissonFOC}
+\end{equation}
+where $\mu_0^\star(X):=\exp\{R(X)'\beta^\star\}$.
+
+\begin{assumption}[Correctly specified control function]
+\label{as:spanmeanindep}
+$\E[Y(0)\mid W,X]=\mu_0^\star(X)$.
+\end{assumption}
+
+\begin{proposition}
+\label{prop:expostfinite}
+Suppose Assumption 1(iii) and Assumption \ref{as:spanmeanindep}\footnote{The proof uses Assumption \ref{as:spanmeanindep} only through $\E\bigl[\bigl\{e^{\tau^\star}(1-a^\star(X))W-a^\star(X)(1-W)\bigr\}\bigl\{Y(0)-\mu_0^\star(X)\bigr\}\bigr]=0$, which is therefore sufficient.} hold, $\E[R(X)R(X)'e^{\tau^\star W}]$ is nonsingular, and $a^\star\in\mathrm{span}(R(X))$ satisfies
+\begin{equation}
+\E\Big[R(X)\,e^{\tau^\star W}\bigl\{W-a^\star(X)\bigr\}\Big]=0 .
+\label{eq:tiltedprojection}
+\end{equation}
+Then, with $\psi^\star(W,X):=\bigl\{1-a^\star(X)\bigr\}W$,
+\begin{equation}
+\E\Big[\psi^\star(W,X)\bigl\{Y(1)-e^{\tau^\star}Y(0)\bigr\}\Big]=0 .
+\label{eq:expostfinitemoment}
+\end{equation}\footnote{Under this stronger Assumption \ref{as:spanmeanindep} the proof does not use \eqref{eq:tiltedprojection}, so \eqref{eq:expostfinitemoment} holds with $a^\star$ replaced by any $a\in\mathrm{span}(R(X))$.  The same is true of the least squares specification: if $(\beta^\star,\gamma^\star)$ solve $\E[R(X)\{Y-\beta^\star W-R(X)'\gamma^\star\}]=0$ and $\E[W\{Y-\beta^\star W-R(X)'\gamma^\star\}]=0$, and $\E[Y(0)\mid W,X]=R(X)'\gamma^\star$, then $\E[\{1-a(X)\}W\{Y(1)-Y(0)-\beta^\star\}]=0$ for every $a\in\mathrm{span}(R(X))$.}
+If in addition $\E[\psi^\star(W,X)Y(0)]>0$, then
+\[
+\tau^\star=\log\frac{\E[\psi^\star(W,X)\,Y(1)]}{\E[\psi^\star(W,X)\,Y(0)]} .
+\]
+\end{proposition}
+
+\begin{proof}
+Since $a^\star=R(X)'\lambda^\star$ for some $\lambda^\star\in\R^K$, the first condition in \eqref{eq:poissonFOC} gives
+\[
+\E\Big[a^\star(X)\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=\lambda^{\star\prime}\,\E\Big[R(X)\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0 .
+\]
+Subtracting this from the second condition in \eqref{eq:poissonFOC},
+\[
+\E\Big[(W-a^\star(X))\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0 .
+\]
+
+Since $W\in\{0,1\}$,
+\[
+Y-\mu_0^\star(X)e^{\tau^\star W}=(1-W)\bigl\{Y(0)-\mu_0^\star(X)\bigr\}+W\bigl\{Y(1)-e^{\tau^\star}\mu_0^\star(X)\bigr\},
+\]
+Using $(W-a^\star)W=(1-a^\star)W$, $(W-a^\star)(1-W)=-a^\star(1-W)$ and
+\[
+Y(1)-e^{\tau^\star}\mu_0^\star=\bigl\{Y(1)-e^{\tau^\star}Y(0)\bigr\}+e^{\tau^\star}\bigl\{Y(0)-\mu_0^\star\bigr\},
+\]
+we obtain
+\begin{equation}
+(W-a^\star)\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}
+=\psi^\star(W,X)\bigl\{Y(1)-e^{\tau^\star}Y(0)\bigr\}+c(W,X)\bigl\{Y(0)-\mu_0^\star(X)\bigr\},
+\label{eq:expostidentityfinite}
+\end{equation}
+where $c(W,X):=e^{\tau^\star}\bigl\{1-a^\star(X)\bigr\}W-a^\star(X)(1-W)$.
+
+The second term of \eqref{eq:expostidentityfinite} has mean zero: $c$ is a function of $(W,X)$, so by Assumption \ref{as:spanmeanindep},
+\[
+\E\bigl[c\,\{Y(0)-\mu_0^\star(X)\}\bigr]
+=\E\bigl[c\,\{\E[Y(0)\mid W,X]-\mu_0^\star(X)\}\bigr]=0 .
+\]
+Taking expectations in \eqref{eq:expostidentityfinite} gives \eqref{eq:expostfinitemoment}.
+\end{proof}
+
+\section{Continuous Treatment}
+
+Let $(Y_i,W_i,X_i)_{i=1}^n$ be an i.i.d. sample with $W_i\in[0,\infty)$, potential outcomes $Y_i(w)\ge 0$ defined for all $w\in[0,\infty)$, and $Y_i=Y_i(W_i)$.
+
+\begin{assumption}[Potential outcome paths]
+\label{as:continuous}
+The data satisfy:
+\begin{enumerate}[label=(\roman*)]
+    \item \textbf{Unconfoundedness:} $Y(\cdot)\perp W\mid X$.
+    \item \textbf{Tilted moments:} $C_\tau(X):=\E[e^{\tau W}\mid X]<\infty$ almost surely, for every $\tau\in\R$.
+    \item \textbf{Absolute continuity:} $w\mapsto Y(w)$ is absolutely continuous on compact subsets of $[0,\infty)$.
+\end{enumerate}
+\end{assumption}
+
+For $\tau\in\R$ define
+\begin{equation}
+\pi_\tau(X):=\frac{\E[We^{\tau W}\mid X]}{\E[e^{\tau W}\mid X]},
+\qquad
+\psi_\tau(w;W,X):=\bigl(W-\pi_\tau(X)\bigr)\1\{W>w\}e^{\tau W},
+\label{eq:contpi}
+\end{equation}
+\begin{equation}
+\phi_\tau(w\mid X):=\E\bigl[\psi_\tau(w;W,X)\mid X\bigr].
+\label{eq:contweights}
+\end{equation}
+For $W\in\{0,1\}$, $\pi_\tau(X)$ in \eqref{eq:contpi} equals $\pi_\tau(X)$ in \eqref{eq:defweights}. The quantity $\pi_\tau(X)$ is the mean of $W$ under the tilted law
+\[
+dF_\tau(w\mid X):=\frac{e^{\tau w}\,dF(w\mid X)}{C_\tau(X)},
+\]
+where $F(\cdot\mid X)$ is the conditional law of $W$ given $X$.
+Restating, we can also write that $\pi_\tau(X)$ is defined by the following moment condition:
+\begin{equation}
+\E\bigl[(W-\pi_\tau(X))e^{\tau W}\mid X\bigr]=0 ,
+\label{eq:contkey}
+\end{equation}
+and therefore
+\[
+\phi_\tau(w\mid X)=-\E\bigl[(W-\pi_\tau(X))\1\{W\le w\}e^{\tau W}\mid X\bigr].
+\]
+For $w\ge\pi_\tau(X)$ the integrand in the definition of $\phi_\tau(w\mid X)$ is nonnegative; for $w<\pi_\tau(X)$ the integrand in the last display is nonnegative.  Hence
+\begin{equation}
+\phi_\tau(w\mid X)\ge 0
+\qquad\text{for all } w\ge 0 .
+\label{eq:contnonneg}
+\end{equation}
+
+\begin{proposition}
+\label{prop:continuous}
+Suppose Assumption \ref{as:continuous} holds.  Let $\tau^\star\in\R$ and a measurable function $\mu_0^\star(X)\ge 0$ satisfy the population first-order conditions
+\begin{align}
+\E\big[Y-\mu_0^\star(X)e^{\tau^\star W}\mid X\big] &= 0 \quad \text{a.s.},
+\label{eq:contcondFOC}
+\\
+\E\big[W\{Y-\mu_0^\star(X)e^{\tau^\star W}\}\big] &= 0.
+\label{eq:conttreatFOC}
+\end{align}
+Suppose further that
+\begin{equation}
+\E\left[\bigl|W-\pi_{\tau^\star}(X)\bigr|e^{\tau^\star W}
+\left\{Y(0)+\int_0^\infty e^{-\tau^\star w}\bigl|\partial_wY(w)-\tau^\star Y(w)\bigr|\,dw\right\}\right]<\infty .
+\label{eq:contintegrable}
+\end{equation}
+Then
+\begin{equation}
+\E\left[\int_0^\infty \phi_{\tau^\star}(w\mid X)\,e^{-\tau^\star w}\bigl\{\partial_wY(w)-\tau^\star Y(w)\bigr\}\,dw\right]=0 .
+\label{eq:contpseudotrue}
+\end{equation}
+If in addition $\E\bigl[\int_0^\infty\phi_{\tau^\star}(w\mid X)e^{-\tau^\star w}Y(w)\,dw\bigr]>0$, then
+\begin{equation}
+\tau^\star
+=
+\frac{\E\bigl[\int_0^\infty\phi_{\tau^\star}(w\mid X)e^{-\tau^\star w}\,\partial_wY(w)\,dw\bigr]}
+     {\E\bigl[\int_0^\infty\phi_{\tau^\star}(w\mid X)e^{-\tau^\star w}Y(w)\,dw\bigr]} ,
+\label{eq:contratio}
+\end{equation}
+and if $Y(w)>0$ for all $w\ge 0$ almost surely,
+\begin{equation}
+\tau^\star
+=
+\frac{\E\bigl[\int_0^\infty\phi_{\tau^\star}(w\mid X)e^{-\tau^\star w}Y(w)\,\partial_w\log Y(w)\,dw\bigr]}
+     {\E\bigl[\int_0^\infty\phi_{\tau^\star}(w\mid X)e^{-\tau^\star w}Y(w)\,dw\bigr]} .
+\label{eq:contlogratio}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Since $\pi_{\tau^\star}(X)$ is a measurable function of $X$, multiplying \eqref{eq:contcondFOC} by it and using the law of iterated expectations gives
+\[
+\E\Big[\pi_{\tau^\star}(X)\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0 .
+\]
+Subtracting this from \eqref{eq:conttreatFOC},
+\[
+\E\Big[(W-\pi_{\tau^\star}(X))\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0 .
+\]
+By \eqref{eq:contkey},
+\[
+\E\Big[(W-\pi_{\tau^\star}(X))\,\mu_0^\star(X)e^{\tau^\star W}\;\Big|\;X\Big]
+=\mu_0^\star(X)\,\E\bigl[(W-\pi_{\tau^\star}(X))e^{\tau^\star W}\mid X\bigr]=0 ,
+\]
+so taking expectations over $X$ leaves
+\begin{equation}
+\E\bigl[(W-\pi_{\tau^\star}(X))\,Y\bigr]=0 .
+\label{eq:contresidualized}
+\end{equation}
+
+Let $g(w):=Y(w)e^{-\tau^\star w}$, so that $Y=e^{\tau^\star W}g(W)$ and, by Assumption \ref{as:continuous}(iii),
+\[
+g'(w)=e^{-\tau^\star w}\bigl\{\partial_wY(w)-\tau^\star Y(w)\bigr\},
+\qquad
+g(W)=g(0)+\int_0^\infty \1\{W>w\}\,g'(w)\,dw .
+\]
+Multiplying the second display by $(W-\pi_{\tau^\star}(X))e^{\tau^\star W}$ and using $g(0)=Y(0)$ and \eqref{eq:contpi},
+\begin{equation}
+(W-\pi_{\tau^\star}(X))\,Y
+=
+Y(0)\,(W-\pi_{\tau^\star}(X))e^{\tau^\star W}
++
+\int_0^\infty \psi_{\tau^\star}(w;W,X)\,g'(w)\,dw .
+\label{eq:contidentity}
+\end{equation}
+By Assumption \ref{as:continuous}(i), the conditional law of $W$ given $(Y(\cdot),X)$ equals its conditional law given $X$.  Hence \eqref{eq:contkey} gives
+\[
+\E\Big[Y(0)\,(W-\pi_{\tau^\star}(X))e^{\tau^\star W}\;\Big|\;Y(\cdot),X\Big]
+=Y(0)\,\E\bigl[(W-\pi_{\tau^\star}(X))e^{\tau^\star W}\mid X\bigr]=0 ,
+\]
+and, by \eqref{eq:contintegrable} and Fubini,
+\[
+\E\left[\int_0^\infty \psi_{\tau^\star}(w;W,X)\,g'(w)\,dw\;\Bigg|\;Y(\cdot),X\right]
+=\int_0^\infty \phi_{\tau^\star}(w\mid X)\,g'(w)\,dw .
+\]
+Taking expectations in \eqref{eq:contidentity} and using \eqref{eq:contresidualized} gives \eqref{eq:contpseudotrue}.
+
+Equation \eqref{eq:contratio} is \eqref{eq:contpseudotrue} rearranged.  If $Y(w)>0$ for all $w$, then $\partial_wY(w)=Y(w)\partial_w\log Y(w)$, which gives \eqref{eq:contlogratio}.
+\end{proof}
+
+\begin{corollary}
+\label{cor:contfinite}
+Let $R(X)\in\R^K$ be the vector of included controls, containing a constant, and let $(\beta^\star,\tau^\star)$ solve the population Poisson moment conditions
+\begin{equation}
+\E\Big[R(X)\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0,
+\qquad
+\E\Big[W\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0,
+\label{eq:contfiniteFOC}
+\end{equation}
+where $\mu_0^\star(X):=\exp\{R(X)'\beta^\star\}$.  Suppose
+\begin{equation}
+\pi_{\tau^\star}(X)\in\mathrm{span}(R(X))
+\qquad\text{almost surely.}
+\label{eq:contspancondition}
+\end{equation}
+Then the conclusions of Proposition \ref{prop:continuous} hold.
+\end{corollary}
+
+\begin{proof}
+By \eqref{eq:contspancondition} there is $\lambda^\star\in\R^K$ with $\pi_{\tau^\star}(X)=R(X)'\lambda^\star$ almost surely, so the first condition in \eqref{eq:contfiniteFOC} gives
+\[
+\E\Big[\pi_{\tau^\star}(X)\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]
+=\lambda^{\star\prime}\,\E\Big[R(X)\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0 .
+\]
+Subtracting this from the second condition in \eqref{eq:contfiniteFOC},
+\[
+\E\Big[(W-\pi_{\tau^\star}(X))\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0 ,
+\]
+and the proof of Proposition \ref{prop:continuous} applies from this point unchanged.
+\end{proof}
+
+\begin{proposition}
+\label{prop:contexpost}
+Suppose Assumption \ref{as:continuous}(iii) and Assumption \ref{as:spanmeanindep} hold, and let $(\beta^\star,\tau^\star)$ solve \eqref{eq:contfiniteFOC} with $\mu_0^\star(X)=\exp\{R(X)'\beta^\star\}$.  Let $a^\star\in\mathrm{span}(R(X))$ satisfy
+\begin{equation}
+\E\Big[R(X)\,e^{\tau^\star W}\bigl\{W-a^\star(X)\bigr\}\Big]=0 ,
+\label{eq:conttiltedprojection}
+\end{equation}
+let $\psi^\star(w;W,X):=\bigl(W-a^\star(X)\bigr)\1\{W>w\}e^{\tau^\star W}$, and suppose
+\begin{equation}
+\E\left[\bigl|W-a^\star(X)\bigr|e^{\tau^\star W}
+\left\{Y(0)+\mu_0^\star(X)+\int_0^\infty e^{-\tau^\star w}\bigl|\partial_wY(w)-\tau^\star Y(w)\bigr|\,dw\right\}\right]<\infty .
+\label{eq:contexpostintegrable}
+\end{equation}
+Then
+\begin{equation}
+\E\left[\int_0^\infty \psi^\star(w;W,X)\,e^{-\tau^\star w}\bigl\{\partial_wY(w)-\tau^\star Y(w)\bigr\}\,dw\right]=0 .
+\label{eq:contexpostmoment}
+\end{equation}
+If in addition $\E\bigl[\int_0^\infty\psi^\star(w;W,X)e^{-\tau^\star w}Y(w)\,dw\bigr]>0$, then
+\begin{equation}
+\tau^\star
+=
+\frac{\E\bigl[\int_0^\infty\psi^\star(w;W,X)e^{-\tau^\star w}\,\partial_wY(w)\,dw\bigr]}
+     {\E\bigl[\int_0^\infty\psi^\star(w;W,X)e^{-\tau^\star w}Y(w)\,dw\bigr]} .
+\label{eq:contexpostratio}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Since $a^\star=R(X)'\lambda^\star$ for some $\lambda^\star\in\R^K$, the first condition in \eqref{eq:contfiniteFOC} gives
+\[
+\E\Big[a^\star(X)\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]
+=\lambda^{\star\prime}\,\E\Big[R(X)\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0 .
+\]
+Subtracting this from the second condition in \eqref{eq:contfiniteFOC},
+\begin{equation}
+\E\Big[(W-a^\star(X))\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}\Big]=0 .
+\label{eq:contexpostsubtraction}
+\end{equation}
+
+Let $g(w):=Y(w)e^{-\tau^\star w}$, so that $Y=e^{\tau^\star W}g(W)$, $g(0)=Y(0)$ and, by Assumption \ref{as:continuous}(iii),
+\[
+g'(w)=e^{-\tau^\star w}\bigl\{\partial_wY(w)-\tau^\star Y(w)\bigr\},
+\qquad
+g(W)-g(0)=\int_0^\infty \1\{W>w\}\,g'(w)\,dw .
+\]
+Hence
+\[
+Y-\mu_0^\star(X)e^{\tau^\star W}
+=
+e^{\tau^\star W}\bigl\{g(W)-g(0)\bigr\}+e^{\tau^\star W}\bigl\{Y(0)-\mu_0^\star(X)\bigr\},
+\]
+and multiplying by $W-a^\star(X)$,
+\begin{equation}
+(W-a^\star(X))\bigl\{Y-\mu_0^\star(X)e^{\tau^\star W}\bigr\}
+=
+\int_0^\infty \psi^\star(w;W,X)\,g'(w)\,dw
++c(W,X)\bigl\{Y(0)-\mu_0^\star(X)\bigr\},
+\label{eq:contexpostidentity}
+\end{equation}
+where $c(W,X):=(W-a^\star(X))e^{\tau^\star W}$.
+
+The second term of \eqref{eq:contexpostidentity} has mean zero: $c$ is a function of $(W,X)$, so by Assumption \ref{as:spanmeanindep},
+\[
+\E\bigl[c(W,X)\{Y(0)-\mu_0^\star(X)\}\bigr]
+=\E\bigl[c(W,X)\{\E[Y(0)\mid W,X]-\mu_0^\star(X)\}\bigr]=0 .
+\]
+Taking expectations in \eqref{eq:contexpostidentity}, which is permitted by \eqref{eq:contexpostintegrable}, and using \eqref{eq:contexpostsubtraction} gives \eqref{eq:contexpostmoment}.  Equation \eqref{eq:contexpostratio} is \eqref{eq:contexpostmoment} rearranged.
+\end{proof}
+
+\begin{proposition}
+\label{prop:contmonotone}
+Suppose Assumption \ref{as:continuous}(i)--(ii) holds, $\E[Y]<\infty$, and set
+\[
+M(\tau):=\E\bigl[(W-\pi_\tau(X))\,Y\bigr],
+\qquad
+V_\tau(X):=\frac{\E\bigl[(W-\pi_\tau(X))^2e^{\tau W}\mid X\bigr]}{C_\tau(X)} .
+\]
+Fix $\tau\in\R$ and suppose $\E\bigl[\sup_{|t-\tau|\le\delta}V_t(X)\,Y\bigr]<\infty$ for some $\delta>0$.  Then
+\[
+M'(\tau)=-\E\bigl[V_\tau(X)\,\E[Y\mid X]\bigr]\le 0 ,
+\]
+with equality if and only if $V_\tau(X)\,\E[Y\mid X]=0$ almost surely.
+\end{proposition}
+
+\begin{proof}
+Differentiating $\pi_\tau(X)$ in \eqref{eq:contpi} in $\tau$, which is justified by Assumption \ref{as:continuous}(ii),
+\[
+\partial_\tau\pi_\tau(X)
+=\frac{\E[W^2e^{\tau W}\mid X]}{C_\tau(X)}-\pi_\tau(X)^2 .
+\]
+Expanding the square in $V_\tau(X)$ and using $\E[We^{\tau W}\mid X]=\pi_\tau(X)C_\tau(X)$,
+\[
+V_\tau(X)
+=\frac{\E[W^2e^{\tau W}\mid X]}{C_\tau(X)}-2\pi_\tau(X)^2+\pi_\tau(X)^2
+=\partial_\tau\pi_\tau(X) .
+\]
+Since $Y$ does not depend on $\tau$, the domination hypothesis gives
+\[
+M'(\tau)=-\E\bigl[\partial_\tau\pi_\tau(X)\,Y\bigr]=-\E\bigl[V_\tau(X)\,Y\bigr]
+=-\E\bigl[V_\tau(X)\,\E[Y\mid X]\bigr],
+\]
+which is nonpositive because $V_\tau(X)\ge 0$ and $Y\ge 0$.
+\end{proof}
+
+\section{Useful Facts}
+
+For $W\in\{0,1\}$, with $\pi_\tau(X)$ and $\phi_\tau(X)$ as in \eqref{eq:defweights},
+\begin{equation}
+\operatorname{logit}\pi_\tau(X)=\operatorname{logit}e(X)+\tau,
+\qquad
+\frac{1}{\phi_\tau(X)}=\frac{1}{e(X)}+\frac{e^{\tau}}{1-e(X)}.
+\label{eq:logitform}
+\end{equation}
+For $W\in[0,\infty)$, with $\pi_\tau(X)$ as in \eqref{eq:contpi} and $C_\tau(X)$ as in Assumption \ref{as:continuous}(ii),
+\[
+\pi_\tau(X)=\partial_\tau\log C_\tau(X).
+\]
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

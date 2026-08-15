@@ -1,0 +1,615 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\allowdisplaybreaks
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{assumption}{Assumption}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\1}{\mathbf{1}}
+\newcommand{\plim}{\mathop{\mathrm{plim}}}
+\newcommand{\R}{\mathbb{R}}
+
+\title{Beauty of Poisson Regression}
+\author{}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Setup}
+
+Let $(Y_i,W_i,X_i)_{i=1}^n$ be an i.i.d. sample, where $W_i\in\{0,1\}$ and $Y_i=Y_i(W_i)\ge 0$. We suppress the unit subscript below and write $(Y,W,X)$ for a generic observation.
+
+\begin{assumption}[Potential outcomes]
+The data satisfy:
+\begin{enumerate}[label=(\roman*)]
+    \item \textbf{Unconfoundedness:} $(Y(0),Y(1)) \perp W \mid X$.
+    \item \textbf{Overlap:} $e(X):=\Pr(W=1\mid X)\in(0,1)$ almost surely.
+    \item \textbf{Integrability:} $\E[Y(0)+Y(1)]<\infty$.
+\end{enumerate}
+\end{assumption}
+
+For $\theta\in(-1,\infty)$ define the two population weights
+\begin{equation}
+\pi_\theta(X):=\frac{(1+\theta)e(X)}{1+\theta e(X)},
+\qquad
+\phi_\theta(X):=\frac{e(X)(1-e(X))}{1+\theta e(X)}.
+\label{eq:defweights}
+\end{equation}
+The quantity $\pi_\theta(X)$ is the \emph{tilted propensity score}. In the Poisson model with log link,
+\[
+\exp\{h(X)+\tau W\}=\mu_0(X)(1+\theta W),
+\qquad \theta=\exp(\tau)-1,
+\]
+where $\mu_0(X)=\exp\{h(X)\}\ge 0$.
+
+\section{Main decomposition with unrestricted control function}
+
+The cleanest population version allows an unrestricted control function $\mu_0(X)$. This is the exact continuous-$X$ analogue of the saturated-cells argument.
+
+\begin{theorem}
+\label{thm:main}
+Suppose Assumption 1 holds. Let $\theta^\star\in(-1,\infty)$ and a measurable function $\mu_0^\star(X)\ge 0$ satisfy the population first-order conditions
+\begin{align}
+\E\big[Y-\mu_0^\star(X)(1+\theta^\star W)\mid X\big] &= 0 \quad \text{a.s.},
+\label{eq:condFOC}
+\\
+\E\big[W\{Y-\mu_0^\star(X)(1+\theta^\star W)\}\big] &= 0.
+\label{eq:treatFOC}
+\end{align}
+Then:
+\begin{align}
+\E\Big[(W-\pi_{\theta^\star}(X))Y\Big] &= 0,
+\label{eq:residualizedmoment}
+\\
+\E\Big[\phi_{\theta^\star}(X)\{Y(1)-(1+\theta^\star)Y(0)\}\Big] &= 0.
+\label{eq:mainmoment}
+\end{align}
+If, in addition, $\E[\phi_{\theta^\star}(X)Y(0)]>0$, then
+\begin{equation}
+1+\theta^\star
+=
+\frac{\E[\phi_{\theta^\star}(X)Y(1)]}{\E[\phi_{\theta^\star}(X)Y(0)]},
+\qquad
+\theta^\star
+=
+\frac{\E[\phi_{\theta^\star}(X)\{Y(1)-Y(0)\}]}{\E[\phi_{\theta^\star}(X)Y(0)]}.
+\label{eq:ratiorepresentation}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Multiply \eqref{eq:condFOC} by the measurable function $\pi_{\theta^\star}(X)$ and take expectations. This yields
+\[
+\E\Big[\pi_{\theta^\star}(X)\{Y-\mu_0^\star(X)(1+\theta^\star W)\}\Big]=0.
+\]
+Subtract this equation from \eqref{eq:treatFOC}. We obtain
+\begin{equation}
+\E\Big[(W-\pi_{\theta^\star}(X))\{Y-\mu_0^\star(X)(1+\theta^\star W)\}\Big]=0.
+\label{eq:subtractFOC}
+\end{equation}
+Now condition on $X$. Since $W\in\{0,1\}$,
+\[
+\E\Big[(W-\pi_\theta(X))(1+\theta W)\mid X\Big]
+=
+(1+\theta)e(X)-\pi_\theta(X)(1+\theta e(X))
+=0
+\]
+by the definition of $\pi_\theta(X)$ in \eqref{eq:defweights}. Therefore
+\[
+\E\Big[(W-\pi_{\theta^\star}(X))\mu_0^\star(X)(1+\theta^\star W)\Big]=0,
+\]
+so \eqref{eq:subtractFOC} reduces to \eqref{eq:residualizedmoment}.
+
+Next use $Y=Y(0)+W\{Y(1)-Y(0)\}$ and unconfoundedness. Conditional on $(X,Y(0),Y(1))$, the treatment $W$ is Bernoulli with success probability $e(X)$. Hence
+\begin{align*}
+\E\Big[(W-\pi_\theta(X))Y\mid X,Y(0),Y(1)\Big]
+&=
+\big(e(X)-\pi_\theta(X)\big)Y(0)
++e(X)\big(1-\pi_\theta(X)\big)\{Y(1)-Y(0)\}.
+\end{align*}
+A direct calculation gives
+\[
+e(X)-\pi_\theta(X)=-\theta\phi_\theta(X),
+\qquad
+e(X)(1-\pi_\theta(X))=\phi_\theta(X).
+\]
+Therefore
+\[
+\E\Big[(W-\pi_\theta(X))Y\mid X,Y(0),Y(1)\Big]
+=
+\phi_\theta(X)\{Y(1)-(1+\theta)Y(0)\}.
+\]
+Taking expectations and setting $\theta=\theta^\star$, equation \eqref{eq:residualizedmoment} implies \eqref{eq:mainmoment}. If $\E[\phi_{\theta^\star}(X)Y(0)]>0$, then \eqref{eq:ratiorepresentation} follows by rearranging \eqref{eq:mainmoment}.
+\end{proof}
+
+\begin{corollary}
+\label{cor:expost}
+Under the assumptions of Theorem \ref{thm:main}, define
+\begin{equation}
+\psi_{1,\theta}(W,X):=\frac{(1-e(X))W}{1+\theta e(X)},
+\qquad
+\psi_{0,\theta}(W,X):=\frac{e(X)(1-W)}{1+\theta e(X)}.
+\label{eq:positiveweights}
+\end{equation}
+Then
+\begin{equation}
+1+\theta^\star
+=
+\frac{\E[\psi_{1,\theta^\star}(W,X)Y]}{\E[\psi_{0,\theta^\star}(W,X)Y]}
+=
+\frac{\E[\phi_{\theta^\star}(X)Y(1)]}{\E[\phi_{\theta^\star}(X)Y(0)]},
+\label{eq:expostratio}
+\end{equation}
+and the ex-post weights average to the common ex-ante weight:
+\begin{equation}
+\E[\psi_{1,\theta}(W,X)\mid X]=\E[\psi_{0,\theta}(W,X)\mid X]=\phi_\theta(X).
+\label{eq:exante}
+\end{equation}
+Moreover,
+\begin{equation}
+W-\pi_\theta(X)=\psi_{1,\theta}(W,X)-(1+\theta)\psi_{0,\theta}(W,X).
+\label{eq:signedresidual}
+\end{equation}
+\end{corollary}
+
+\begin{proof}
+Equation \eqref{eq:exante} is immediate from the definitions. Since $Y=Y(W)$,
+\[
+\E[\psi_{1,\theta}(W,X)Y\mid X,Y(0),Y(1)]
+=
+\phi_\theta(X)Y(1),
+\]
+while
+\[
+\E[\psi_{0,\theta}(W,X)Y\mid X,Y(0),Y(1)]
+=
+\phi_\theta(X)Y(0).
+\]
+Taking expectations gives \eqref{eq:expostratio}. Identity \eqref{eq:signedresidual} is a one-line algebraic check.
+\end{proof}
+
+\begin{remark}
+Theorem \ref{thm:main} shows that the Poisson pseudo-true coefficient is naturally a \emph{multiplicative ratio} of weighted potential-outcome means. Corollary \ref{cor:expost} is the Poisson analogue of the Borusyak-Hull ex-post/ex-ante decomposition: the realized assignment-dependent weights $\psi_{1,\theta}$ and $\psi_{0,\theta}$ average, over the assignment law, to the common nonnegative ex-ante weight $\phi_\theta(X)$.
+\end{remark}
+
+\section{Poisson Regression with Restricted Control Functions}
+
+The previous theorem uses an unrestricted control function. A standard Poisson regression instead uses a finite-dimensional vector of controls.
+
+\begin{corollary}
+\label{cor:finite}
+Let $R(X)\in\R^K$ be the vector of controls included in the Poisson Regression regression, with a constant among its coordinates. Let $(\beta^\star,\tau^\star)$ be a pseudo-true parameter satisfying the population first-order conditions for
+\[
+\E[Y\mid X,W]\approx \exp\{R(X)'\beta+\tau W\}.
+\]
+Write
+\[
+\theta^\star:=\exp(\tau^\star)-1,
+\qquad
+\mu_0^\star(X):=\exp\{R(X)'\beta^\star\}.
+\]
+Suppose the tilted propensity score satisfies the span condition
+\begin{equation}
+\pi_{\theta^\star}(X)\in \mathrm{span}(R(X))
+\qquad \text{almost surely.}
+\label{eq:spancondition}
+\end{equation}
+Then the conclusions of Theorem \ref{thm:main} and Corollary \ref{cor:expost} continue to hold.
+
+If, in addition, the sample Poisson Regression estimator $(\hat\beta,\hat\tau)$ is consistent for $(\beta^\star,\tau^\star)$ under standard extremum-estimator regularity conditions, then
+\[
+\hat\theta:=\exp(\hat\tau)-1 \xrightarrow{p} \theta^\star,
+\]
+with $\theta^\star$ characterized by \eqref{eq:mainmoment}, \eqref{eq:ratiorepresentation}, and \eqref{eq:expostratio}.
+\end{corollary}
+
+\begin{proof}
+Let
+\[
+U^\star:=Y-\mu_0^\star(X)(1+\theta^\star W).
+\]
+The pseudo-true first-order conditions imply
+\[
+\E[R(X)U^\star]=0,
+\qquad
+\E[WU^\star]=0.
+\]
+By \eqref{eq:spancondition}, there exists $\lambda^\star\in\R^K$ such that $\pi_{\theta^\star}(X)=R(X)'\lambda^\star$ almost surely. Hence
+\[
+\E[\pi_{\theta^\star}(X)U^\star]=\lambda^{\star\prime}\E[R(X)U^\star]=0.
+\]
+Subtracting from the treatment first-order condition gives
+\[
+\E\Big[(W-\pi_{\theta^\star}(X))U^\star\Big]=0.
+\]
+Exactly as in the proof of Theorem \ref{thm:main},
+\[
+\E\Big[(W-\pi_{\theta^\star}(X))\mu_0^\star(X)(1+\theta^\star W)\Big]=0,
+\]
+so $\E[(W-\pi_{\theta^\star}(X))Y]=0$. The rest of the argument is identical to Theorem \ref{thm:main}. Consistency of $\hat\theta$ follows from standard Poisson Regression consistency for $(\hat\beta,\hat\tau)$ and the continuous mapping theorem.
+\end{proof}
+
+\section{Consequences when \texorpdfstring{$Y(0)$}{Y(0)} may or may not have zeros}
+
+The weighted moment in Theorem \ref{thm:main} is well-defined whether or not $Y(0)$ has zeros. The interpretation changes, however, depending on whether unit-level percentage effects exist everywhere.
+
+\begin{corollary}
+\label{cor:nozeros}
+Suppose the assumptions of Theorem \ref{thm:main} hold and $Y(0)>0$ almost surely. Define the unit-level proportional effect
+\[
+\vartheta:=\frac{Y(1)-Y(0)}{Y(0)}.
+\]
+If $\E[\phi_{\theta^\star}(X)Y(0)]>0$, then
+\begin{equation}
+\theta^\star
+=
+\frac{\E[\phi_{\theta^\star}(X)Y(0)\vartheta]}{\E[\phi_{\theta^\star}(X)Y(0)]}
+=
+\E[\lambda^\star\vartheta],
+\label{eq:convexaverage}
+\end{equation}
+where
+\[
+\lambda^\star:=\frac{\phi_{\theta^\star}(X)Y(0)}{\E[\phi_{\theta^\star}(X)Y(0)]}\ge 0,
+\qquad \E[\lambda^\star]=1.
+\]
+\end{corollary}
+
+\begin{proof}
+From \eqref{eq:mainmoment},
+\[
+0=\E\Big[\phi_{\theta^\star}(X)\{Y(1)-(1+\theta^\star)Y(0)\}\Big]
+=\E\Big[\phi_{\theta^\star}(X)Y(0)(\vartheta-\theta^\star)\Big].
+\]
+Rearranging yields \eqref{eq:convexaverage}.
+\end{proof}
+
+\begin{corollary}
+\label{cor:zeros}
+Suppose the assumptions of Theorem \ref{thm:main} hold and $\E[\phi_{\theta^\star}(X)Y(0)]>0$. Define
+\[
+\vartheta:=\frac{Y(1)-Y(0)}{Y(0)} \qquad \text{on the event } \{Y(0)>0\}.
+\]
+Then
+\begin{equation}
+\theta^\star
+=
+\frac{
+\E\big[\phi_{\theta^\star}(X)Y(1)\1\{Y(0)=0\}\big]
++
+\E\big[\phi_{\theta^\star}(X)Y(0)\vartheta\1\{Y(0)>0\}\big]
+}{\E[\phi_{\theta^\star}(X)Y(0)]}.
+\label{eq:extensiveintensive}
+\end{equation}
+\end{corollary}
+
+\begin{proof}
+Split the numerator in \eqref{eq:ratiorepresentation} according to whether $Y(0)=0$ or $Y(0)>0$. On $\{Y(0)>0\}$, write $Y(1)-Y(0)=Y(0)\vartheta$. On $\{Y(0)=0\}$, the contribution is simply $Y(1)$. This gives \eqref{eq:extensiveintensive}.
+\end{proof}
+
+\begin{remark}[Small effects]
+When $\theta^\star$ is close to zero,
+\[
+\phi_{\theta^\star}(X)=e(X)(1-e(X))+O(\theta^\star),
+\qquad
+\pi_{\theta^\star}(X)=e(X)+\theta^\star e(X)(1-e(X))+O\big((\theta^\star)^2\big).
+\]
+Thus the Poisson decomposition locally approaches an Angrist-style variance weighting, but in the no-zero case the convex-average representation still carries an additional factor of $Y(0)$.
+\end{remark}
+
+\begin{remark}[Uniqueness of the weighted causal root]
+Let $m_t(X):=\E[Y(t)\mid X]$ for $t\in\{0,1\}$ and define
+\[
+M(\theta):=\E\Big[\phi_\theta(X)\{m_1(X)-(1+\theta)m_0(X)\}\Big].
+\]
+A short derivative calculation gives
+\[
+M'(\theta)
+=
+-\E\left[
+\frac{e(X)(1-e(X))\big((1-e(X))m_0(X)+e(X)m_1(X)\big)}{(1+\theta e(X))^2}
+\right]\le 0.
+\]
+Hence the weighted causal moment is weakly decreasing in $\theta$, and strictly decreasing except in degenerate cases with zero conditional mean. This rules out multiple roots in economically relevant settings.
+\end{remark}
+
+
+\section{Axiomization of Poisson Regression}
+
+The previous sections show that Poisson regression aggregates extensive and intensive margins with the same nonnegative ex-ante weight $\phi_{\theta^\star}(X)$. This raises a natural question: within a broader class of residual-based single-index regressions, is Poisson the unique specification with that property? The next two theorems answer this question in the affirmative.
+
+Consider a class indexed by a continuous link function $q:\R\to(0,\infty)$ and a continuous residual-weight function $a:(0,\infty)\to(0,\infty)$. For a measurable control function $h$ and a scalar coefficient $\tau$, define
+\begin{equation}
+\mu_{\tau,h}(X,W):=q\big(h(X)+\tau W\big).
+\label{eq:genericmean}
+\end{equation}
+Let $(h^\star,\tau^\star)$ be a pseudo-true pair satisfying the population moment conditions
+\begin{align}
+\E\Big[a\big(\mu_{\tau^\star,h^\star}(X,W)\big)\big\{Y-\mu_{\tau^\star,h^\star}(X,W)\big\}\mid X\Big] &= 0 \quad \text{a.s.},
+\label{eq:genericcondFOC}
+\\
+\E\Big[W a\big(\mu_{\tau^\star,h^\star}(X,W)\big)\big\{Y-\mu_{\tau^\star,h^\star}(X,W)\big\}\Big] &= 0.
+\label{eq:generictreatFOC}
+\end{align}
+Write
+\begin{equation}
+\mu_0^\star(X):=q\big(h^\star(X)\big),
+\qquad
+\mu_1^\star(X):=q\big(h^\star(X)+\tau^\star\big),
+\label{eq:genericmeans01}
+\end{equation}
+and define
+\begin{equation}
+R^\star(X):=\frac{\mu_1^\star(X)}{\mu_0^\star(X)},
+\qquad
+A_0^\star(X):=a\big(\mu_0^\star(X)\big),
+\qquad
+A_1^\star(X):=a\big(\mu_1^\star(X)\big).
+\label{eq:genericRA}
+\end{equation}
+Because $q$ is strictly positive, both $\mu_0^\star(X)$ and $\mu_1^\star(X)$ are strictly positive and $R^\star(X)$ is well-defined.
+
+\begin{theorem}
+\label{thm:genericclass}
+Suppose Assumption 1 holds and $(h^\star,\tau^\star)$ satisfies \eqref{eq:genericcondFOC}-\eqref{eq:generictreatFOC}. Define
+\begin{equation}
+\pi^\star(X):=
+\frac{e(X)R^\star(X)A_1^\star(X)}{(1-e(X))A_0^\star(X)+e(X)R^\star(X)A_1^\star(X)}
+\label{eq:genericpi}
+\end{equation}
+and
+\begin{equation}
+\omega^\star(X):=
+\frac{e(X)(1-e(X))A_0^\star(X)A_1^\star(X)}{(1-e(X))A_0^\star(X)+e(X)R^\star(X)A_1^\star(X)}.
+\label{eq:genericomega}
+\end{equation}
+Then
+\begin{align}
+\E\Big[(W-\pi^\star(X))a\big(\mu_{\tau^\star,h^\star}(X,W)\big)Y\Big] &= 0,
+\label{eq:genericresidmoment}
+\\
+\E\Big[\omega^\star(X)\{Y(1)-R^\star(X)Y(0)\}\Big] &= 0.
+\label{eq:genericcausalmoment}
+\end{align}
+If, in addition, $R^\star(X)=r^\star$ almost surely for some scalar $r^\star>0$ and $\E[\omega^\star(X)Y(0)]>0$, then
+\begin{equation}
+r^\star
+=
+\frac{\E[\omega^\star(X)Y(1)]}{\E[\omega^\star(X)Y(0)]}.
+\label{eq:genericratio}
+\end{equation}
+If also $Y(0)>0$ almost surely and
+\[
+\vartheta:=\frac{Y(1)-Y(0)}{Y(0)},
+\]
+then
+\begin{equation}
+r^\star-1
+=
+\frac{\E[\omega^\star(X)Y(0)\vartheta]}{\E[\omega^\star(X)Y(0)]}.
+\label{eq:genericintensive}
+\end{equation}
+More generally, when zeros are allowed,
+\begin{equation}
+r^\star-1
+=
+\frac{
+\E\big[\omega^\star(X)Y(1)\1\{Y(0)=0\}\big]
++
+\E\big[\omega^\star(X)Y(0)\vartheta\1\{Y(0)>0\}\big]
+}{\E[\omega^\star(X)Y(0)]},
+\label{eq:genericextensiveintensive}
+\end{equation}
+where $\vartheta=(Y(1)-Y(0))/Y(0)$ on the event $\{Y(0)>0\}$.
+\end{theorem}
+
+\begin{proof}
+Multiply \eqref{eq:genericcondFOC} by the measurable function $\pi^\star(X)$ and take expectations. This yields
+\[
+\E\Big[\pi^\star(X)a\big(\mu_{\tau^\star,h^\star}(X,W)\big)\big\{Y-\mu_{\tau^\star,h^\star}(X,W)\big\}\Big]=0.
+\]
+Subtract this equation from \eqref{eq:generictreatFOC}. We obtain
+\begin{equation}
+\E\Big[(W-\pi^\star(X))a\big(\mu_{\tau^\star,h^\star}(X,W)\big)\big\{Y-\mu_{\tau^\star,h^\star}(X,W)\big\}\Big]=0.
+\label{eq:genericsubtract}
+\end{equation}
+We next show that the fitted-value term drops out. Conditional on $X$, the random variable $a(\mu_{\tau^\star,h^\star}(X,W))\mu_{\tau^\star,h^\star}(X,W)$ equals $A_0^\star(X)\mu_0^\star(X)$ when $W=0$ and $A_1^\star(X)\mu_1^\star(X)$ when $W=1$. Therefore
+\begin{align*}
+&\E\Big[(W-\pi^\star(X))a\big(\mu_{\tau^\star,h^\star}(X,W)\big)\mu_{\tau^\star,h^\star}(X,W)\mid X\Big]
+\\
+&\qquad=
+ e(X)\big(1-\pi^\star(X)\big)A_1^\star(X)\mu_1^\star(X)
+ -(1-e(X))\pi^\star(X)A_0^\star(X)\mu_0^\star(X).
+\end{align*}
+Using $\mu_1^\star(X)=R^\star(X)\mu_0^\star(X)$ and the definition \eqref{eq:genericpi}, the right-hand side is zero. Hence
+\[
+\E\Big[(W-\pi^\star(X))a\big(\mu_{\tau^\star,h^\star}(X,W)\big)\mu_{\tau^\star,h^\star}(X,W)\Big]=0,
+\]
+so \eqref{eq:genericsubtract} reduces to \eqref{eq:genericresidmoment}.
+
+Now condition on $(X,Y(0),Y(1))$. By unconfoundedness, $W$ is Bernoulli with success probability $e(X)$. Since $Y=Y(0)+W\{Y(1)-Y(0)\}$,
+\begin{align*}
+&\E\Big[(W-\pi^\star(X))a\big(\mu_{\tau^\star,h^\star}(X,W)\big)Y\mid X,Y(0),Y(1)\Big]
+\\
+&\qquad=
+ e(X)\big(1-\pi^\star(X)\big)A_1^\star(X)Y(1)
+ -(1-e(X))\pi^\star(X)A_0^\star(X)Y(0).
+\end{align*}
+Substituting \eqref{eq:genericpi} gives
+\[
+ e(X)\big(1-\pi^\star(X)\big)A_1^\star(X)
+ =
+ \omega^\star(X)
+\]
+and
+\[
+(1-e(X))\pi^\star(X)A_0^\star(X)
+=
+R^\star(X)\omega^\star(X).
+\]
+Therefore
+\[
+\E\Big[(W-\pi^\star(X))a\big(\mu_{\tau^\star,h^\star}(X,W)\big)Y\mid X,Y(0),Y(1)\Big]
+=
+\omega^\star(X)\{Y(1)-R^\star(X)Y(0)\}.
+\]
+Taking expectations and using \eqref{eq:genericresidmoment} yields \eqref{eq:genericcausalmoment}.
+
+If $R^\star(X)=r^\star$ almost surely and $\E[\omega^\star(X)Y(0)]>0$, rearranging \eqref{eq:genericcausalmoment} gives \eqref{eq:genericratio}. If $Y(0)>0$ almost surely, then $Y(1)-r^\star Y(0)=Y(0)\{\vartheta-(r^\star-1)\}$, and \eqref{eq:genericintensive} follows immediately. When zeros are allowed, split the numerator in \eqref{eq:genericratio} according to the events $\{Y(0)=0\}$ and $\{Y(0)>0\}$. On $\{Y(0)>0\}$, write $Y(1)-Y(0)=Y(0)\vartheta$; on $\{Y(0)=0\}$, the contribution is simply $Y(1)$. This gives \eqref{eq:genericextensiveintensive}.
+\end{proof}
+
+\begin{theorem}
+\label{thm:characterization}
+Assume that $q$ and $a$ are continuous and strictly positive, and that there exists $\tau_0\in\R$ with $q(v+\tau_0)\neq q(v)$ for some $v\in\R$. Suppose the following two properties hold.
+\begin{enumerate}[label=(\roman*)]
+    \item \textbf{Scalar multiplicative effect:} there exists a function $r:\R\to(0,\infty)$ such that
+    \begin{equation}
+    q(v+\tau)=r(\tau)q(v)
+    \qquad \text{for all } v,\tau\in\R.
+    \label{eq:scalaraxiom}
+    \end{equation}
+    \item \textbf{Design-based common weighting:} for every $\tau\in\R$ and every $e\in(0,1)$, the weight
+    \begin{equation}
+    \omega_{\tau,e}(u)
+    :=
+    \frac{e(1-e)a(u)a(r(\tau)u)}{(1-e)a(u)+er(\tau)a(r(\tau)u)}
+    \label{eq:omegaaxiom}
+    \end{equation}
+    is independent of $u>0$.
+\end{enumerate}
+Then there exist constants $c_0>0$, $c_1\neq 0$, and $c_2>0$ such that
+\begin{equation}
+q(t)=c_0e^{c_1 t},
+\qquad
+ a(u)\equiv c_2.
+\label{eq:characterizationconclusion}
+\end{equation}
+After the reparameterization
+\[
+\tilde h(X):=\log c_0+c_1 h(X),
+\qquad
+\tilde\tau:=c_1\tau,
+\]
+the mean model \eqref{eq:genericmean} becomes
+\[
+\mu_{\tau,h}(X,W)=\exp\{\tilde h(X)+\tilde\tau W\},
+\]
+and the moments \eqref{eq:genericcondFOC}-\eqref{eq:generictreatFOC} are proportional to the Poisson moments with score $Y-\exp\{\tilde h(X)+\tilde\tau W\}$. In particular, with $\theta:=\exp(\tilde\tau)-1$ the common ex-ante weight is proportional to
+\begin{equation}
+\frac{e(X)(1-e(X))}{1+\theta e(X)},
+\label{eq:poissonweightagain}
+\end{equation}
+which is exactly the Poisson weight in Theorem \ref{thm:main}.
+\end{theorem}
+
+\begin{proof}
+We prove the two conclusions in turn.
+
+\medskip
+\noindent
+\textit{Step 1.}
+By \eqref{eq:scalaraxiom} with $v=0$,
+\[
+r(\tau)=\frac{q(\tau)}{q(0)}.
+\]
+Substituting back into \eqref{eq:scalaraxiom} gives
+\[
+q(v+\tau)=\frac{q(v)q(\tau)}{q(0)}
+\qquad \text{for all } v,\tau\in\R.
+\]
+Define $f(t):=q(t)/q(0)$. Then $f$ is positive and continuous, and it satisfies the multiplicative Cauchy equation
+\[
+f(v+\tau)=f(v)f(\tau)
+\qquad \text{for all } v,\tau\in\R.
+\]
+Taking logarithms, $g(t):=\log f(t)$ is continuous and satisfies
+\[
+g(v+\tau)=g(v)+g(\tau)
+\qquad \text{for all } v,\tau\in\R.
+\]
+By the standard characterization of continuous additive functions, there exists a constant $c_1\in\R$ such that $g(t)=c_1 t$. Hence
+\[
+f(t)=e^{c_1 t}
+\qquad \text{and therefore} \qquad
+q(t)=q(0)e^{c_1 t}.
+\]
+Setting $c_0:=q(0)>0$ gives $q(t)=c_0e^{c_1 t}$. If $c_1=0$, then $q$ is constant and \eqref{eq:scalaraxiom} implies $r(\tau)\equiv 1$, contradicting the assumed existence of $\tau_0$ with $q(v+\tau_0)\neq q(v)$ for some $v$. Therefore $c_1\neq 0$.
+
+\medskip
+\noindent
+\textit{Step 2.}
+Fix $\tau\in\R$ and write $r:=r(\tau)>0$. By Step 1, the multiplicative effect is $\mu_1/\mu_0=r$, so the generic ex-ante weight in Theorem \ref{thm:genericclass} becomes exactly \eqref{eq:omegaaxiom}. By assumption, for each $e\in(0,1)$ there exists a constant $k_r(e)>0$ such that
+\[
+\omega_{\tau,e}(u)=k_r(e)
+\qquad \text{for all } u>0.
+\]
+Taking reciprocals in \eqref{eq:omegaaxiom} yields
+\begin{equation}
+\frac{1}{k_r(e)}
+=
+\frac{1}{e\,a(ru)}+\frac{r}{(1-e)a(u)}
+\qquad \text{for all } u>0.
+\label{eq:reciprocalweight}
+\end{equation}
+Choose two distinct propensity scores $e_1,e_2\in(0,1)$. Subtracting \eqref{eq:reciprocalweight} evaluated at $e_1$ and $e_2$ gives
+\[
+\left(\frac{1}{e_1}-\frac{1}{e_2}\right)\frac{1}{a(ru)}
++
+ r\left(\frac{1}{1-e_1}-\frac{1}{1-e_2}\right)\frac{1}{a(u)}
+=0
+\qquad \text{for all } u>0.
+\]
+Because $e_1\neq e_2$, the coefficients are nonzero, so there exists a constant $c_r>0$ such that
+\begin{equation}
+\frac{1}{a(ru)}=c_r\frac{1}{a(u)}
+\qquad \text{for all } u>0.
+\label{eq:scalea}
+\end{equation}
+Substitute \eqref{eq:scalea} back into \eqref{eq:reciprocalweight}. For any fixed $e\in(0,1)$,
+\[
+\frac{1}{k_r(e)}
+=
+\left(\frac{c_r}{e}+\frac{r}{1-e}\right)\frac{1}{a(u)}
+\qquad \text{for all } u>0.
+\]
+The left-hand side is independent of $u$, and the factor in parentheses is a strictly positive constant. Therefore $1/a(u)$ is independent of $u$, so $a(u)$ itself must be constant on $(0,\infty)$. Let $c_2>0$ denote this constant value. This proves \eqref{eq:characterizationconclusion}.
+
+With $q(t)=c_0e^{c_1 t}$ and $a(u)\equiv c_2$, the model \eqref{eq:genericmean} becomes
+\[
+\mu_{\tau,h}(X,W)
+=
+c_0\exp\{c_1 h(X)+c_1\tau W\}
+=\exp\{\tilde h(X)+\tilde\tau W\}.
+\]
+The moments \eqref{eq:genericcondFOC}-\eqref{eq:generictreatFOC} are multiplied by the positive constant $c_2$, which does not affect their zero set. Hence the model is exactly Poisson after reparameterization. Finally, because $r(\tau)=\exp(\tilde\tau)=1+\theta$, equation \eqref{eq:genericomega} becomes
+\[
+\omega^\star(X)
+\propto
+\frac{e(X)(1-e(X))}{1+\theta e(X)},
+\]
+which is \eqref{eq:poissonweightagain}.
+\end{proof}
+
+% \begin{remark}[Why covariate variation matters]
+% The characterization of the score weight $a(\cdot)$ uses the fact that the common ex-ante weight must remain unchanged when two strata have the same propensity score but different baseline outcome levels. If there are no controls, or more generally if $e(X)$ is constant, this restriction has no content. In that case one can still characterize the exponential link $q$, but not the Poisson score itself.
+% \end{remark}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

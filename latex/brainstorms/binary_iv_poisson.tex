@@ -1,0 +1,556 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amsthm,amssymb,mathtools}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\usepackage{natbib}
+
+\numberwithin{equation}{section}
+
+\newcommand{\E}{\mathbb E}
+\newcommand{\PP}{\mathbb P}
+\newcommand{\1}{\mathbf 1}
+\newcommand{\indep}{\perp\!\!\!\perp}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\newtheorem{assumption}{Assumption}[section]
+\newtheorem{theorem}[assumption]{Theorem}
+\newtheorem{corollary}[assumption]{Corollary}
+\newtheorem{proposition}[assumption]{Proposition}
+\theoremstyle{remark}
+\newtheorem{remark}[assumption]{Remark}
+
+\title{Binary-Instrument IV Poisson Regression}
+\author{Lihua Lei}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Binary instrument without covariates}
+
+Let $(Y,D,Z)$ denote a generic observation, where $D \in \{0,1\}$,
+$Z \in \{0,1\}$, and
+\[
+Y = Y(D), \qquad D = (1-Z)D(0) + ZD(1), \qquad Y(0),Y(1) \ge 0.
+\]
+Throughout, $Y(0)$ and $Y(1)$ denote potential outcomes and $D(0)$ and $D(1)$
+denote potential treatment states.
+
+\begin{assumption}[No-covariate IV setup]\label{ass:nocov}
+The data satisfy:
+\begin{itemize}
+    \item[(i)] \textbf{Exogeneity:}
+    \[
+    (Y(0),Y(1),D(0),D(1)) \indep Z.
+    \]
+    \item[(ii)] \textbf{Relevance:}
+    \[
+    \E[D\mid Z=1] \neq \E[D\mid Z=0].
+    \]
+    \item[(iii)] \textbf{Integrability:}
+    \[
+    \E[Y(0)+Y(1)] < \infty.
+    \]
+\end{itemize}
+\end{assumption}
+
+Fix $\theta \in (-1,\infty)$. The Poisson log-link mean with a binary treatment can be
+written as
+\[
+\exp\{h+\tau D\} = \mu_0(1+\theta D), \qquad \theta = e^{\tau}-1,
+\]
+where $\mu_0>0$ is the baseline mean. With a binary instrument there is no loss from
+using $Z$ itself as the instrument, because the saturated first stage $\E[D\mid Z]$ is an
+affine transform of $Z$.
+
+The population Poisson-IV moment system is therefore
+\begin{align}
+\E\bigl[Y-\mu_0^\star(1+\theta^\star D)\bigr] &= 0, \label{eq:nocov-mean}\\
+\E\bigl[Z\{Y-\mu_0^\star(1+\theta^\star D)\}\bigr] &= 0, \label{eq:nocov-iv}
+\end{align}
+for a pair $(\mu_0^\star,\theta^\star)$ with $\theta^\star \in (-1,\infty)$.
+
+\begin{theorem}\label{thm:nocov-wald}
+Suppose Assumption~\ref{ass:nocov} holds and $(\mu_0^\star,\theta^\star)$ satisfies
+\eqref{eq:nocov-mean}--\eqref{eq:nocov-iv}. Then
+\[
+\mu_0^\star = \frac{\E[Y]}{1+\theta^\star \E[D]} \ge 0.
+\]
+If $\E[Y]>0$, then $\mu_0^\star>0$. In addition,
+\begin{equation}\label{eq:nocov-beta}
+\mu_0^\star\theta^\star
+= \frac{\E[Y\mid Z=1]-\E[Y\mid Z=0]}{\E[D\mid Z=1]-\E[D\mid Z=0]}.
+\end{equation}
+If $\mu_0^\star>0$, then
+\begin{equation}\label{eq:nocov-theta}
+\theta^\star
+= \frac{\beta_{\mathrm{IV}}}{\E[Y]-\E[D]\beta_{\mathrm{IV}}},
+\qquad
+\beta_{\mathrm{IV}}
+:= \frac{\E[Y\mid Z=1]-\E[Y\mid Z=0]}{\E[D\mid Z=1]-\E[D\mid Z=0]}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The first moment \eqref{eq:nocov-mean} gives
+\[
+\E[Y] = \mu_0^\star\bigl(1+\theta^\star\E[D]\bigr).
+\]
+Because $\theta^\star>-1$ and $\E[D]\in[0,1]$, the denominator
+$1+\theta^\star\E[D]$ is strictly positive. Hence
+\[
+\mu_0^\star = \frac{\E[Y]}{1+\theta^\star\E[D]} \ge 0.
+\]
+If $\E[Y]>0$, then $\mu_0^\star>0$ as well.
+
+Now let $\bar z := \E[Z]$. Subtracting $\bar z$ times \eqref{eq:nocov-mean} from
+\eqref{eq:nocov-iv} yields
+\[
+0 = \E\bigl[(Z-\bar z)\{Y-\mu_0^\star(1+\theta^\star D)\}\bigr].
+\]
+Since $\E[Z-\bar z]=0$, the constant part drops out, so
+\[
+\Cov(Z,Y) = \mu_0^\star\theta^\star\Cov(Z,D).
+\]
+By relevance, $\Cov(Z,D)\neq 0$. Because $Z$ is binary,
+\[
+\Cov(Z,V) = \PP(Z=1)\PP(Z=0)\bigl(\E[V\mid Z=1]-\E[V\mid Z=0]\bigr)
+\]
+for any integrable random variable $V$. Applying this identity with $V=Y$ and $V=D$
+gives \eqref{eq:nocov-beta}.
+
+If $\mu_0^\star>0$, then \eqref{eq:nocov-beta} implies
+\[
+\mu_0^\star\theta^\star = \beta_{\mathrm{IV}}.
+\]
+Substituting this into the first moment gives
+\[
+\E[Y] = \mu_0^\star + \E[D]\beta_{\mathrm{IV}},
+\]
+so
+\[
+\mu_0^\star = \E[Y]-\E[D]\beta_{\mathrm{IV}}.
+\]
+Dividing $\beta_{\mathrm{IV}}=\mu_0^\star\theta^\star$ by this expression proves
+\eqref{eq:nocov-theta}.
+\end{proof}
+
+Theorem~\ref{thm:nocov-wald} shows that the Poisson-IV coefficient is not a new causal
+object. The causal object is the Wald coefficient $\beta_{\mathrm{IV}}$. The Poisson
+coefficient $\theta^\star$ simply rescales it by the positive baseline mean $\mu_0^\star$.
+
+\begin{assumption}[Monotonicity]\label{ass:mono-nocov}
+\[
+D(1) \ge D(0) \quad \text{almost surely.}
+\]
+\end{assumption}
+
+\begin{corollary}\label{cor:nocov-late}
+Suppose Assumptions~\ref{ass:nocov} and \ref{ass:mono-nocov} hold. Let
+\[
+C := \{D(1)>D(0)\}
+\]
+denote the complier event. Then
+\begin{equation}\label{eq:nocov-late}
+\mu_0^\star\theta^\star = \E\bigl[Y(1)-Y(0)\mid C\bigr].
+\end{equation}
+If $\mu_0^\star>0$, then
+\begin{equation}\label{eq:nocov-late-theta}
+\theta^\star
+= \frac{\E\bigl[Y(1)-Y(0)\mid C\bigr]}{\mu_0^\star}.
+\end{equation}
+\end{corollary}
+
+\begin{proof}
+By exogeneity and the definitions of the observed outcome and treatment,
+\[
+\E[Y\mid Z=1]-\E[Y\mid Z=0]
+= \E\bigl[Y(D(1))-Y(D(0))\bigr].
+\]
+Because $D$ is binary,
+\[
+Y(D(1))-Y(D(0)) = \bigl(D(1)-D(0)\bigr)\bigl(Y(1)-Y(0)\bigr).
+\]
+Under monotonicity, $D(1)-D(0)=\1\{C\}$, so
+\[
+\E[Y\mid Z=1]-\E[Y\mid Z=0]
+= \PP(C)\E\bigl[Y(1)-Y(0)\mid C\bigr].
+\]
+Similarly,
+\[
+\E[D\mid Z=1]-\E[D\mid Z=0]
+= \E[D(1)-D(0)] = \PP(C).
+\]
+Taking the ratio shows that $\beta_{\mathrm{IV}}=\E[Y(1)-Y(0)\mid C]$. The claim then
+follows from Theorem~\ref{thm:nocov-wald}.
+\end{proof}
+
+\begin{remark}\label{rem:nocov-sign}
+If $\mu_0^\star>0$, then $\theta^\star$ and the LATE in
+\eqref{eq:nocov-late-theta} have the same sign. Thus, in the binary-instrument model
+without covariates, Poisson IV preserves the sign of the usual IV estimand.
+\end{remark}
+
+\section{Binary instrument with covariates}
+
+Now restore covariates $X$. Write
+\[
+e(X) := \PP(Z=1\mid X),
+\]
+and, for $z\in\{0,1\}$,
+\[
+m_z(X) := \E[Y\mid Z=z,X], \qquad p_z(X) := \E[D\mid Z=z,X].
+\]
+
+\begin{assumption}[Covariate IV setup]\label{ass:cov}
+The data satisfy:
+\begin{itemize}
+    \item[(i)] \textbf{Conditional exogeneity:}
+    \[
+    (Y(0),Y(1),D(0),D(1)) \indep Z \mid X.
+    \]
+    \item[(ii)] \textbf{Overlap:}
+    \[
+    e(X) \in (0,1) \quad \text{almost surely.}
+    \]
+    \item[(iii)] \textbf{Integrability:}
+    \[
+    \E[Y(0)+Y(1)] < \infty.
+    \]
+\end{itemize}
+\end{assumption}
+
+\begin{assumption}[Conditional monotonicity]\label{ass:mono-cov}
+\[
+D(1) \ge D(0) \quad \text{almost surely.}
+\]
+\end{assumption}
+
+\subsection{Saturated covariates}
+
+The clean benchmark lets the baseline mean be an unrestricted function of $X$.
+Let $(\mu_0^\star(X),\theta^\star)$ satisfy
+\begin{align}
+\E\bigl[Y-\mu_0^\star(X)(1+\theta^\star D)\mid X\bigr] &= 0
+\quad \text{almost surely}, \label{eq:cov-mean}\\
+\E\bigl[(Z-e(X))\{Y-\mu_0^\star(X)(1+\theta^\star D)\}\bigr] &= 0.
+\label{eq:cov-iv}
+\end{align}
+The first equation is the unrestricted control-function condition. The second is the
+usual binary-instrument moment after residualizing the instrument nonparametrically.
+
+\begin{theorem}\label{thm:cov-saturated}
+Suppose Assumption~\ref{ass:cov} holds and $(\mu_0^\star(X),\theta^\star)$ satisfies
+\eqref{eq:cov-mean}--\eqref{eq:cov-iv}. Then
+\[
+\mu_0^\star(X)
+= \frac{\E[Y\mid X]}{1+\theta^\star\E[D\mid X]} \ge 0
+\quad \text{almost surely}.
+\]
+In addition,
+\begin{equation}\label{eq:cov-basic}
+\E\Bigl[e(X)(1-e(X))\bigl\{m_1(X)-m_0(X)-\mu_0^\star(X)\theta^\star
+\bigl(p_1(X)-p_0(X)\bigr)\bigr\}\Bigr] = 0.
+\end{equation}
+Define
+\[
+\beta(X) :=
+\begin{cases}
+\dfrac{m_1(X)-m_0(X)}{p_1(X)-p_0(X)}, & p_1(X)\neq p_0(X),\\[1.25ex]
+0, & p_1(X)=p_0(X).
+\end{cases}
+\]
+If
+\begin{equation}\label{eq:cov-positive}
+\E\Bigl[e(X)(1-e(X))\mu_0^\star(X)\bigl(p_1(X)-p_0(X)\bigr)\Bigr] > 0,
+\end{equation}
+then
+\begin{equation}\label{eq:cov-ratio}
+\theta^\star
+= \frac{\E\Bigl[e(X)(1-e(X))\bigl(p_1(X)-p_0(X)\bigr)\beta(X)\Bigr]}
+{\E\Bigl[e(X)(1-e(X))\mu_0^\star(X)\bigl(p_1(X)-p_0(X)\bigr)\Bigr]}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The conditional mean moment \eqref{eq:cov-mean} implies
+\[
+\E[Y\mid X] = \mu_0^\star(X)\bigl(1+\theta^\star\E[D\mid X]\bigr)
+\quad \text{almost surely}.
+\]
+Because $\theta^\star>-1$ and $\E[D\mid X]\in[0,1]$, the multiplier
+$1+\theta^\star\E[D\mid X]$ is strictly positive almost surely. Hence
+\[
+\mu_0^\star(X)
+= \frac{\E[Y\mid X]}{1+\theta^\star\E[D\mid X]} \ge 0
+\quad \text{almost surely}.
+\]
+
+Next condition on $X$ in \eqref{eq:cov-iv}. Since $\mu_0^\star(X)$ is measurable with
+respect to $X$ and $\E[Z-e(X)\mid X]=0$,
+\[
+\E\bigl[(Z-e(X))Y\mid X\bigr]
+= \mu_0^\star(X)\theta^\star\E\bigl[(Z-e(X))D\mid X\bigr].
+\]
+Because $Z$ is binary,
+\[
+\E\bigl[(Z-e(X))Y\mid X\bigr] = e(X)(1-e(X))\bigl(m_1(X)-m_0(X)\bigr)
+\]
+and
+\[
+\E\bigl[(Z-e(X))D\mid X\bigr] = e(X)(1-e(X))\bigl(p_1(X)-p_0(X)\bigr).
+\]
+Substituting these identities and taking expectations proves \eqref{eq:cov-basic}.
+
+Finally, by the definition of $\beta(X)$,
+\[
+\bigl(p_1(X)-p_0(X)\bigr)\beta(X) = m_1(X)-m_0(X)
+\quad \text{almost surely}.
+\]
+Replacing $m_1(X)-m_0(X)$ by this product in \eqref{eq:cov-basic} and rearranging
+establishes \eqref{eq:cov-ratio} whenever the denominator in
+\eqref{eq:cov-positive} is positive.
+\end{proof}
+
+Theorem~\ref{thm:cov-saturated} is the direct analogue of the no-covariate result:
+$\theta^\star$ is obtained by averaging conditional Wald coefficients and then dividing
+by a positive baseline mean.
+
+\begin{corollary}\label{cor:cov-late}
+Suppose Assumptions~\ref{ass:cov} and \ref{ass:mono-cov} hold, and assume
+\eqref{eq:cov-positive}. Let
+\[
+C := \{D(1)>D(0)\}.
+\]
+Then
+\[
+p_1(X)-p_0(X) = \PP(C\mid X)
+\quad \text{almost surely},
+\]
+and one may take
+\[
+\beta(X) =
+\begin{cases}
+\E\bigl[Y(1)-Y(0)\mid C,X\bigr], & \PP(C\mid X)>0,\\[0.75ex]
+0, & \PP(C\mid X)=0.
+\end{cases}
+\]
+Hence
+\begin{equation}\label{eq:cov-late-ratio}
+\theta^\star
+= \frac{\E\Bigl[e(X)(1-e(X))\PP(C\mid X)\beta(X)\Bigr]}
+{\E\Bigl[e(X)(1-e(X))\PP(C\mid X)\mu_0^\star(X)\Bigr]}.
+\end{equation}
+Equivalently,
+\begin{equation}\label{eq:cov-late-avg}
+\theta^\star = \E\bigl[\omega^\star(X)\vartheta(X)\bigr],
+\end{equation}
+where
+\[
+\vartheta(X) := \frac{\beta(X)}{\mu_0^\star(X)}
+\]
+on the event $\{\mu_0^\star(X)>0\}$, and
+\[
+\omega^\star(X)
+:= \frac{e(X)(1-e(X))\PP(C\mid X)\mu_0^\star(X)}
+{\E\Bigl[e(X)(1-e(X))\PP(C\mid X)\mu_0^\star(X)\Bigr]}.
+\]
+The weight $\omega^\star(X)$ is nonnegative and integrates to one.
+\end{corollary}
+
+\begin{proof}
+By conditional exogeneity,
+\[
+m_1(X)-m_0(X)
+= \E\bigl[Y(D(1))-Y(D(0))\mid X\bigr].
+\]
+As in the no-covariate case,
+\[
+Y(D(1))-Y(D(0)) = \bigl(D(1)-D(0)\bigr)\bigl(Y(1)-Y(0)\bigr).
+\]
+Under monotonicity, $D(1)-D(0)=\1\{C\}$, so
+\[
+m_1(X)-m_0(X)
+= \PP(C\mid X)\E\bigl[Y(1)-Y(0)\mid C,X\bigr]
+\]
+on the event $\{\PP(C\mid X)>0\}$, and $m_1(X)-m_0(X)=0$ when $\PP(C\mid X)=0$.
+Similarly,
+\[
+p_1(X)-p_0(X) = \E[D(1)-D(0)\mid X] = \PP(C\mid X).
+\]
+Thus the conditional Wald coefficient $\beta(X)$ equals the conditional LATE on the
+cells where the first stage is nonzero, and equals zero elsewhere by convention.
+Substituting these identities into \eqref{eq:cov-ratio} gives
+\eqref{eq:cov-late-ratio}. Writing the ratio as a normalized weighted average proves
+\eqref{eq:cov-late-avg}.
+\end{proof}
+
+\begin{remark}\label{rem:cov-benchmark}
+When $X$ is degenerate, Theorem~\ref{thm:cov-saturated} and
+Corollary~\ref{cor:cov-late} collapse to Theorem~\ref{thm:nocov-wald} and
+Corollary~\ref{cor:nocov-late}. The only difference introduced by covariates is that
+one averages the conditional Wald or conditional LATE objects with weights
+proportional to $e(X)(1-e(X))\mu_0^\star(X)\PP(C\mid X)$.
+\end{remark}
+
+\subsection{Linear controls and rich covariates}
+
+Now let $R(X)$ be a vector of included controls containing a constant. Consider the
+Poisson-IV specification
+\[
+\mu_0^\star(X) := \exp\{R(X)'\alpha^\star\},
+\]
+where $(\alpha^\star,\theta^\star)$ satisfies the population first-order conditions
+\begin{align}
+\E\Bigl[R(X)\bigl\{Y-\mu_0^\star(X)(1+\theta^\star D)\bigr\}\Bigr] &= 0,
+\label{eq:lin-mean}\\
+\E\Bigl[Z\bigl\{Y-\mu_0^\star(X)(1+\theta^\star D)\bigr\}\Bigr] &= 0.
+\label{eq:lin-iv}
+\end{align}
+Because $\mu_0^\star(X)$ is exponential, it is strictly positive automatically.
+
+Let $L(X)$ denote the linear projection of $Z$ onto $R(X)$:
+\[
+L(X) := R(X)'\lambda^\star,
+\qquad
+\lambda^\star := \argmin_{\lambda}\E\bigl[(Z-R(X)'\lambda)^2\bigr].
+\]
+Equivalently,
+\[
+\E\bigl[R(X)\{Z-L(X)\}\bigr] = 0.
+\]
+Following \cite{blandhol2022tsls}, call the condition
+\begin{equation}\label{eq:rich}
+e(X) = L(X) \quad \text{almost surely}
+\end{equation}
+\emph{rich covariates}.
+
+\begin{theorem}\label{thm:rich-covariates}
+Suppose Assumption~\ref{ass:cov} holds, $(\alpha^\star,\theta^\star)$ satisfies
+\eqref{eq:lin-mean}--\eqref{eq:lin-iv}, and the rich-covariates condition
+\eqref{eq:rich} holds. Then
+\begin{equation}\label{eq:rich-basic}
+\E\Bigl[e(X)(1-e(X))\bigl\{m_1(X)-m_0(X)-\mu_0^\star(X)\theta^\star
+\bigl(p_1(X)-p_0(X)\bigr)\bigr\}\Bigr] = 0.
+\end{equation}
+If
+\[
+\E\Bigl[e(X)(1-e(X))\mu_0^\star(X)\bigl(p_1(X)-p_0(X)\bigr)\Bigr] > 0,
+\]
+then
+\begin{equation}\label{eq:rich-ratio}
+\theta^\star
+= \frac{\E\Bigl[e(X)(1-e(X))\bigl(p_1(X)-p_0(X)\bigr)\beta(X)\Bigr]}
+{\E\Bigl[e(X)(1-e(X))\mu_0^\star(X)\bigl(p_1(X)-p_0(X)\bigr)\Bigr]},
+\end{equation}
+where
+\[
+\beta(X) :=
+\begin{cases}
+\dfrac{m_1(X)-m_0(X)}{p_1(X)-p_0(X)}, & p_1(X)\neq p_0(X),\\[1.25ex]
+0, & p_1(X)=p_0(X).
+\end{cases}
+\]
+Under Assumptions~\ref{ass:cov} and \ref{ass:mono-cov}, the same formula holds with
+$\beta(X)$ equal to the conditional LATE on the cells where $\PP(C\mid X)>0$.
+\end{theorem}
+
+\begin{proof}
+Let
+\[
+U^\star := Y-\mu_0^\star(X)(1+\theta^\star D).
+\]
+Because $L(X)$ lies in the linear span of $R(X)$, the first-order condition
+\eqref{eq:lin-mean} implies
+\[
+\E\bigl[L(X)U^\star\bigr] = 0.
+\]
+Subtracting this equation from \eqref{eq:lin-iv} gives
+\[
+\E\bigl[(Z-L(X))U^\star\bigr] = 0.
+\]
+Under rich covariates, $L(X)=e(X)$ almost surely, so
+\[
+\E\bigl[(Z-e(X))U^\star\bigr] = 0.
+\]
+Since $\mu_0^\star(X)$ is measurable with respect to $X$ and
+$\E[Z-e(X)\mid X]=0$, the same conditional calculation as in the proof of
+Theorem~\ref{thm:cov-saturated} yields
+\eqref{eq:rich-basic}. Rearranging proves \eqref{eq:rich-ratio}. The final claim then
+follows from the conditional Wald-LATE identity used in the proof of
+Corollary~\ref{cor:cov-late}.
+\end{proof}
+
+Theorem~\ref{thm:rich-covariates} is the Poisson analogue of the familiar saturated or
+rich-covariates result for linear IV: once the instrument is residualized correctly, the
+coefficient is built from conditional Wald effects alone.
+
+\begin{proposition}\label{prop:level-dependence}
+Suppose Assumption~\ref{ass:cov} holds and $(\alpha^\star,\theta^\star)$ satisfies
+\eqref{eq:lin-mean}--\eqref{eq:lin-iv}. Then, without imposing rich covariates,
+\begin{align}
+0
+&= \E\Bigl[e(X)(1-e(X))\bigl\{m_1(X)-m_0(X)-\mu_0^\star(X)\theta^\star
+\bigl(p_1(X)-p_0(X)\bigr)\bigr\}\Bigr] \notag\\
+&\qquad
++ \E\Bigl[(e(X)-L(X))\bigl\{\E[Y\mid X]-\mu_0^\star(X)(1+\theta^\star\E[D\mid X])\bigr\}\Bigr].
+\label{eq:level-dependence}
+\end{align}
+The second term is a level term. It vanishes automatically under rich covariates, but in
+general it depends on the levels $\E[Y\mid X]$ and $\E[D\mid X]$, not just on the
+conditional Wald contrasts $m_1(X)-m_0(X)$ and $p_1(X)-p_0(X)$.
+\end{proposition}
+
+\begin{proof}
+As in the proof of Theorem~\ref{thm:rich-covariates}, let
+$U^\star=Y-\mu_0^\star(X)(1+\theta^\star D)$. Since
+$\E[L(X)U^\star]=0$ and $\E[ZU^\star]=0$,
+\[
+\E\bigl[(Z-L(X))U^\star\bigr] = 0.
+\]
+Conditioning on $X$ gives
+\[
+\E\bigl[(Z-L(X))U^\star\mid X\bigr]
+= \Cov(Z,U^\star\mid X) + (e(X)-L(X))\E[U^\star\mid X].
+\]
+Because $\mu_0^\star(X)$ is measurable with respect to $X$,
+\[
+\Cov(Z,U^\star\mid X)
+= \Cov(Z,Y\mid X) - \mu_0^\star(X)\theta^\star\Cov(Z,D\mid X).
+\]
+For binary $Z$,
+\[
+\Cov(Z,Y\mid X) = e(X)(1-e(X))\bigl(m_1(X)-m_0(X)\bigr)
+\]
+and
+\[
+\Cov(Z,D\mid X) = e(X)(1-e(X))\bigl(p_1(X)-p_0(X)\bigr).
+\]
+Moreover,
+\[
+\E[U^\star\mid X]
+= \E[Y\mid X]-\mu_0^\star(X)(1+\theta^\star\E[D\mid X]).
+\]
+Substituting these expressions into the conditional identity above and taking
+expectations yields \eqref{eq:level-dependence}.
+\end{proof}
+
+\begin{remark}\label{rem:rich-examples}
+Two familiar cases guarantee rich covariates. First, if $R(X)$ is saturated in $X$,
+then $L(X)=\E[Z\mid X]=e(X)$ by construction. Second, if $Z$ is mean independent of
+$X$, then $e(X)$ is constant, and any specification containing a constant is rich. These
+are exactly the binary-instrument cases emphasized in \cite{blandhol2022tsls}.
+\end{remark}
+
+\bibliography{poisson_reg}
+\bibliographystyle{plainnat}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,83 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{color}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{geometry}
+\usepackage{amsthm}
+\geometry{margin=1in}
+
+
+\newtheorem{assu}{Assumption}
+\newtheorem{prop}{Proposition}
+
+\title{Poisson directions.}
+\date{\today}
+
+\begin{document}
+
+\section{Efficiency}
+
+\begin{assu}
+    Suppose $\mathbb{E}[Y] = \lambda(x, w)$, $\mathbb{V}[Y] = \sigma^2\lambda(x, w)$ is a sum of i.i.d. random variables coming from the same distribution.
+\end{assu}
+
+
+\begin{prop}
+    Under this assumption, if we want to estimate $E[\phi_{\theta}(X)\tau] / E[\phi_{\theta}(X) Y(0)]$ or $E[\phi(X; P)\tau] / E[\phi(X; P)Y(0)]$, then optimizing for variance, this is the optimal choice for $w$.
+\end{prop}
+
+Think of putting $P$ to be the distribution of $Y(0)$ given $X$ instead?
+
+
+
+
+
+What I do not like about this proposition is that why the hell do we allow w to depend on theta? I also wonder if it is possible to make the assumption a bit more abstract...
+
+
+\section{Ex-post weights under model assumption}
+
+\begin{proposition}
+    Suppose $\mathbb{E}[Y(0) | X] = \exp(X\gamma)$, then the estimate of the Poisson regression is a weighted average in the following way:
+\begin{equation}
+    \theta = \frac{E[\psi_{1, \theta}(X, \theta)\tau]}{E[\psi_{0, \theta} Y(0)]}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+    From FOC with respect to $\beta$:
+    \[\mathbb{E}[\exp(X\gamma)(1 + \theta_i W) - \exp(X\beta)(1 + \theta e(x))\mid X] = 0\]
+    \[\exp(X\beta) = \mathbb{E}[\frac{\exp(X\gamma)(1 + \theta_i W)}{(1 + \theta e(x))} - \mid X] = 0\]
+
+
+    Now plug in FOC w.r.t. $\theta$:
+
+    \[\exp(X\beta) = \mathbb{E}[\frac{\exp(X\gamma)(1 + \theta_i W)}{(1 + \theta e(x))} - \mid X] = 0\]
+\end{proof}
+
+Done.
+
+I need to assume exponent of the baseline
+from X focs take exp(Xbeta), plug it into W foc
+replace exp(Xgamma) with Y(0)
+The 1 related part with cancel out (under the ex-ante weights) -- with somehting
+The ex-post weights will remain.
+
+I think I need tilted model based assumption
+
+\section{Axiomatization}
+
+It would be cool to motivate GLM as well. Suppose we want that the weights depend only on a finite statistic of Y? Can we get a Pitman-Koopman-Darmois type result that then we should have GLM?
+
+Specify better, what do you mean here
+
+\section{Empirical part}
+
+\section{}
+
+\end{document}

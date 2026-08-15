@@ -16,32 +16,32 @@
 
 We consider a sample of $n$ i.i.d.\ subjects $(X_i, W_i, Y_i(1), Y_i(0)) \sim \mathbb{P}$, where $W_i \in \{0,1\}$ is a scalar treatment, $X_i \in \mathbb{R}^p$ a covariate vector, and $Y_i(w) \in \mathbb{R}$ potential outcomes.  We observe only $Y_i = Y_i(W_i)$ and write $Z_i = (X_i, W_i, Y_i)$.
 
-We define $e(x) = \mathbb{P}(W_i=1\mid X_i=x)$, $m_w(x) = \mathbb{E}[Y_i\mid W_i=w, X_i=x]$, and $\theta(x) = m_1(x)/m_0(x) - 1$.
+We define $e(x) = \mathbb{P}(W_i=1\mid X_i=x)$, $m_w(x) = \mathbb{E}[Y_i\mid W_i=w, X_i=x]$, and $\tau(x) = \log\bigl(m_1(x)/m_0(x)\bigr)$.
 
 The target estimand is
 \[
-  \theta = \frac{\mu_1}{\mu_0} - 1,
+  \tau = \log\frac{\mu_1}{\mu_0},
   \qquad
   \mu_w = \mathbb{E}\bigl[\phi(X, P)\,Y(w)\bigr].
 \]
-The weight $\phi(x, s, t)$ \emph{depends on the unknown distribution $P$} through the scalar $\theta$ and the
-conditional effect function $\theta(\cdot)$, where $s$ is a placeholder for the scalar $\theta$ and $t$ is a placeholder for the pointwise value $\theta(x)$; the natural evaluation is $\phi(x,\theta,\theta(x))$.  Partial
+The weight $\phi(x, s, t)$ \emph{depends on the unknown distribution $P$} through the scalar $\tau$ and the
+conditional effect function $\tau(\cdot)$, where $s$ is a placeholder for the scalar $\tau$ and $t$ is a placeholder for the pointwise value $\tau(x)$; the natural evaluation is $\phi(x,\tau,\tau(x))$.  Partial
 derivatives are
 \[
-  \phi_\theta'(x) := \frac{\partial \phi(x,s,t)}{\partial s}\bigg|_{s=\theta,\,t=\theta(x)}, \qquad
-  \phi_{\theta(\cdot)}'(x) := \frac{\partial \phi(x, s, t)}{\partial t}\bigg|_{s=\theta,\,t=\theta(x)}.
+  \phi_\tau'(x) := \frac{\partial \phi(x,s,t)}{\partial s}\bigg|_{s=\tau,\,t=\tau(x)}, \qquad
+  \phi_{\tau(\cdot)}'(x) := \frac{\partial \phi(x, s, t)}{\partial t}\bigg|_{s=\tau,\,t=\tau(x)}.
 \]
-That is, $\phi_\theta'(x)$ is the derivative of $\phi$ with respect to the scalar estimand $\theta$, while
-$\phi_{\theta(\cdot)}'(x)$ is the derivative with respect to the \emph{pointwise} value $\theta(x)$—treating $\phi$ as a function of the third argument $t$ and evaluating at $t=\theta(x)$.
+That is, $\phi_\tau'(x)$ is the derivative of $\phi$ with respect to the scalar estimand $\tau$, while
+$\phi_{\tau(\cdot)}'(x)$ is the derivative with respect to the \emph{pointwise} value $\tau(x)$---treating $\phi$ as a function of the third argument $t$ and evaluating at $t=\tau(x)$.
 We treat $e(x)$ and the marginal density $p(x)$ as known, so the only unknown nuisance is the conditional
 mean pair $(m_0, m_1)$.
 
 
-\paragraph{Problem:} We are looking to find a semi-parametric efficiency bound for $\theta$ when the weight $\phi$ is allowed to depend on the unknown $P$ through $\theta$ and $\theta(\cdot)$. We are also looking to find the weights, for which this bound is minimal. Specifically, for any submodel $P_\epsilon$:
+\paragraph{Problem:} We are looking to find a semi-parametric efficiency bound for $\tau$ when the weight $\phi$ is allowed to depend on the unknown $P$ through $\tau$ and $\tau(\cdot)$. We are also looking to find the weights, for which this bound is minimal. Specifically, for any submodel $P_\epsilon$:
 
-\[V(\hat \theta) \geq \left(\frac{d\theta}{d\epsilon}\bigg|_0\right)^2\frac{1}{\mathbb{E}[s(z_i)^2]}.\]
+\[V(\hat \tau) \geq \left(\frac{d\tau}{d\epsilon}\bigg|_0\right)^2\frac{1}{\mathbb{E}[s(z_i)^2]}.\]
 
-\paragraph{Minimax optimal weights:} We then ask which weight family minimises the worst-case efficiency loss relative to the oracle weight, over $\theta$, over $m_0$, and over local departures from $\theta(\cdot)\equiv\theta$; see Theorem \ref{thm:minimax}.
+\paragraph{Minimax optimal weights:} We then ask which weight family minimises the worst-case efficiency loss relative to the oracle weight, over $\tau$, over $m_0$, and over local departures from $\tau(\cdot)\equiv\tau$; see Theorem \ref{thm:minimax}.
 
 \begin{assumption}[Known $e(x)$ and $p(x)$]
 The propensity score $e(\cdot)$ and the marginal density $p(\cdot)$ are known, so the only unknown nuisance is $(m_0,m_1)$.
@@ -51,10 +51,10 @@ The propensity score $e(\cdot)$ and the marginal density $p(\cdot)$ are known, s
 $W \perp\!\!\!\perp (Y(1),Y(0))\mid X$ and $e(x)\in(\eta,1-\eta)$ for some $\eta>0$.
 \end{assumption}
 
-Under unconfoundedness we can identify $\theta$ as a functional of the observed data distribution:
+Under unconfoundedness we can identify $\tau$ as a functional of the observed data distribution:
 
 \[
-  \theta = g(\mu_1,\mu_0) = \frac{\mu_1}{\mu_0} - 1,
+  \tau = \log\mu_1 - \log\mu_0,
   \qquad
   \mu_w = \mathbb{E}\bigl[\phi(X, P)\,Y(w)\bigr].
 \]
@@ -84,85 +84,71 @@ I do not use homoskedasticity assumption to put a constraint on the tangent spac
 
 \section*{Derivation of the Efficient Influence Function}
 
-
-Since $\theta = g(\mu_1,\mu_0)$ with $g(a,b)=a/b-1$, the delta method gives
-
-
+Since $\tau = \log\mu_1 - \log\mu_0$,
 \begin{equation}
   \label{eq:delta}
-  \frac{d}{d\epsilon}\theta(P_\epsilon)\bigg|_0 = \frac{1}{\mu_0}\left(\frac{d}{d\epsilon}\mu_1(P_\epsilon)\bigg|_0 - (\theta + 1)\,\frac{d}{d\epsilon}\mu_0(P_\epsilon)\bigg|_0\right).
+  \frac{d}{d\epsilon}\tau(P_\epsilon)\bigg|_0
+  = \frac{1}{\mu_1}\frac{d}{d\epsilon}\mu_1(P_\epsilon)\bigg|_0
+  - \frac{1}{\mu_0}\frac{d}{d\epsilon}\mu_0(P_\epsilon)\bigg|_0 .
 \end{equation}
 
-Now, we will analyse seperately:
+Write $\Psi(Z) := \dfrac{W}{e(X)\,\mu_1} - \dfrac{1-W}{(1-e(X))\,\mu_0}$, with $\mu_0,\mu_1$ evaluated at $\epsilon=0$.  Then
+
 \[
-  \mu_0\frac{d}{d\epsilon}\,\theta(P_\epsilon)\bigg|_0
-  = \underbrace{\frac{d}{d\epsilon}\,\mathbb{E}_{P_\epsilon}\bigl[\phi(X,P_0)\,\left(\frac{W}{e(X)} - \frac{(\theta+1)(1-W)}{1-e(X)}\right)Y\bigr]\bigg|_0}_{\text{IPW 
-  term}} + \]
-  \[\underbrace{\mathbb{E}_P\!\left[\frac{d\phi(X,P_\epsilon)}{d\epsilon}\bigg|_0
-  \left(\frac{W}{e(X)} - \frac{(\theta+1)(1-W)}{1-e(X)}\right)Y\right]}_{\text{weight adjustment}}
+  \frac{d}{d\epsilon}\,\tau(P_\epsilon)\bigg|_0
+  = \underbrace{\frac{d}{d\epsilon}\,\mathbb{E}_{P_\epsilon}\bigl[\phi(X,P_0)\,\Psi(Z)\,Y\bigr]\bigg|_0}_{\text{IPW term}}
+  + \underbrace{\mathbb{E}_P\!\left[\frac{d\phi(X,P_\epsilon)}{d\epsilon}\bigg|_0\,\Psi(Z)\,Y\right]}_{\text{weight adjustment}} .
 \]
 
-Write $\Psi(Z) := \frac{W}{e(X)} - \frac{(\theta+1)(1-W)}{1-e(X)}$.  In the IPW term the weights do not depend on $\epsilon$, so the derivative acts only on the conditional outcome distribution:
+In the IPW term the weights do not depend on $\epsilon$, so the derivative acts only on the conditional outcome distribution:
 
 \[\underbrace{\frac{d}{d\epsilon}\,\mathbb{E}_{P_\epsilon}\bigl[\phi(X,P_0)\,\Psi(Z)\,Y\bigr]\bigg|_0}_{\text{IPW term}}
 = \mathbb{E}_{P_0}\!\left[\phi(X)\,\Psi(Z)\,Y\cdot s(Z)\right] \]\[
-= \mathbb{E}_{P_0}\!\left[\phi(X)\,Y\!\left(\frac{W c_1(Y,X)}{e(X)} - \frac{(\theta+1)(1-W) c_0(Y,X)}{1-e(X)}\right)\right].\]
+= \mathbb{E}_{P_0}\!\left[\phi(X)\,Y\!\left(\frac{W c_1(Y,X)}{e(X)\,\mu_1} - \frac{(1-W) c_0(Y,X)}{(1-e(X))\,\mu_0}\right)\right].\]
 
 I now, adjusting the EIF to belong to the tangent space:
 \[
-  \mathrm{EIF}^{(0)}_\theta(Z)
-  := \phi(X)\!\left[\frac{W\bigl(Y-m_1(X)\bigr)}{e(X)}
-    - \frac{(\theta+1)(1-W)\bigl(Y-m_0(X)\bigr)}{1-e(X)}\right].
+  \mathrm{EIF}^{(0)}_\tau(Z)
+  := \phi(X)\!\left[\frac{W\bigl(Y-m_1(X)\bigr)}{e(X)\,\mu_1}
+    - \frac{(1-W)\bigl(Y-m_0(X)\bigr)}{(1-e(X))\,\mu_0}\right].
 \]
 
 
-Weight adjustment:
-\[
-  \underbrace{\mathbb{E}_P\!\left[\frac{d\phi(X,P_\epsilon)}{d\epsilon}\bigg|_0
-  \,\Psi(Z)\,Y\right]}_{\text{weight adjustment}}
-= \mathbb{E}_{P_0}\!\left[\phi(X)\,\Psi(Z)\,Y\cdot \mathbb{E}_{Z' \sim P_0}\!\left[\frac{d\log \phi(X)}{dP}[Z']\,s(Z')\right]\right].
-\]
+\subsection*{$\phi(X,P)=\phi(X,\tau,\tau(\cdot))$}
 
-So, in total:
-\[
-\mathbb{E}_{P_0}\!\left[\mathrm{EIF}^{(0)}_\theta(Z)\,s(Z)\right]
-+ \mathbb{E}_{P_0}\!\left[\phi(X)\,\Psi(Z)\,Y\cdot \mathbb{E}_{Z' \sim P_0}\!\left[\frac{d\log\phi(X)}{dP}[Z']\,s(Z')\right]\right].
-\]
-
-
-\subsection*{$\phi(X,P)=\phi(X,\theta,\theta(\cdot))$}
-
-We now restrict the dependence of the weight on $P$ to the parametrization announced in the setup, $\phi(x) = \phi(x,\theta,\theta(\cdot))$, with derivatives $\phi_\theta'$ and $\phi_{\theta(\cdot)}'$.  Treating $\phi$ as a function of the scalar $\theta$ and the pointwise value $\theta(x)$, the chain rule along the submodel $P_\epsilon$ gives
+We now restrict the dependence of the weight on $P$ to the parametrization announced in the setup, $\phi(x) = \phi(x,\tau,\tau(\cdot))$, with derivatives $\phi_\tau'$ and $\phi_{\tau(\cdot)}'$.  The chain rule along the submodel $P_\epsilon$ gives
 \begin{equation}
   \label{eq:phi_dot}
   \frac{d}{d\epsilon}\phi(X,P_\epsilon)\bigg|_0
-  = \phi_\theta'(X)\,\dot\theta + \phi_{\theta(\cdot)}'(X)\,\dot\theta(X),
+  = \phi_\tau'(X)\,\dot\tau + \phi_{\tau(\cdot)}'(X)\,\dot\tau(X),
 \end{equation}
-where $\dot\theta := \frac{d\theta(P_\epsilon)}{d\epsilon}|_0$ and $\dot\theta(x) := \frac{d\theta(x;P_\epsilon)}{d\epsilon}|_0$.  Substituting \eqref{eq:phi_dot} into the weight-adjustment expectation splits it into two pieces:
+where $\dot\tau := \frac{d\tau(P_\epsilon)}{d\epsilon}|_0$ and $\dot\tau(x) := \frac{d\tau(x;P_\epsilon)}{d\epsilon}|_0$.  Substituting \eqref{eq:phi_dot} into the weight-adjustment expectation splits it into two pieces:
 \[
   \text{weight adjustment}
-  = \underbrace{\dot\theta\;\mathbb{E}\!\left[\phi_\theta'(X)\,\Psi(Z)\,Y\right]}_{T_\theta}
-  + \underbrace{\mathbb{E}\!\left[\phi_{\theta(\cdot)}'(X)\,\dot\theta(X)\,\Psi(Z)\,Y\right]}_{T_{\theta(\cdot)}}.
+  = \underbrace{\dot\tau\;\mathbb{E}\!\left[\phi_\tau'(X)\,\Psi(Z)\,Y\right]}_{T_\tau}
+  + \underbrace{\mathbb{E}\!\left[\phi_{\tau(\cdot)}'(X)\,\dot\tau(X)\,\Psi(Z)\,Y\right]}_{T_{\tau(\cdot)}}.
 \]
 
-\paragraph{$T_\theta$}
+\paragraph{$T_\tau$}
 Conditioning on $X$ and using $\mathbb{E}[WY/e(X)\mid X]=m_1(X)$ and $\mathbb{E}[(1-W)Y/(1-e(X))\mid X]=m_0(X)$,
-\[
+\begin{equation}
+  \label{eq:Delta}
   \mathbb{E}\!\left[\Psi(Z)\,Y\mid X\right]
-  = m_1(X) - (\theta+1)\,m_0(X)
-  = m_0(X)\bigl(\theta(X)-\theta\bigr),
-\]
+  = \frac{m_1(X)}{\mu_1} - \frac{m_0(X)}{\mu_0}
+  =: \Delta(X)
+  = \frac{m_1(X)-e^{\tau}m_0(X)}{\mu_1},
+\end{equation}
 so that
 \begin{equation}
-  \label{eq:T_theta}
-  T_\theta = A\,\dot\theta,\qquad
-  A := \mathbb{E}\!\left[\phi_\theta'(X)\,m_0(X)\bigl(\theta(X)-\theta\bigr)\right].
+  \label{eq:T_tau}
+  T_\tau = A\,\dot\tau,\qquad
+  A := \mathbb{E}\!\left[\phi_\tau'(X)\,\Delta(X)\right].
 \end{equation}
 
-\paragraph{$T_{\theta(\cdot)}$.}
-Differentiating $\theta(x) = m_1(x)/m_0(x) - 1$ along the submodel,
+\paragraph{$T_{\tau(\cdot)}$.}
+Differentiating $\tau(x) = \log m_1(x) - \log m_0(x)$ along the submodel,
 \[
-  \dot\theta(x) = \frac{\dot m_1(x) - (\theta(x)+1)\,\dot m_0(x)}{m_0(x)}.
+  \dot\tau(x) = \frac{\dot m_1(x)}{m_1(x)} - \frac{\dot m_0(x)}{m_0(x)}.
 \]
 The submodel's score $s(Z)=W c_1(Y,X) + (1-W) c_0(Y,X)$ with $\mathbb{E}[c_w\mid X,W=w]=0$ gives
 \[
@@ -180,50 +166,50 @@ We rewrite $\mathbb{E}[h(X)\,\dot m_w(X)]$ in two steps.  \emph{Step 1 (inverse-
   \mathbb{E}[h(X)\,\dot m_0(X)]
   &= \mathbb{E}\!\left[h(X)\,\frac{(1-W)(Y-m_0(X))}{1-e(X)}\,s(Z)\right].
 \end{align*}
-Combining these,
+Applying these with $h/m_1$ and $h/m_0$ in place of $h$,
 \begin{equation}
   \label{eq:Xi_tilde_identity}
-  \mathbb{E}\!\left[h(X)\,m_0(X)\,\dot\theta(X)\right]
+  \mathbb{E}\!\left[h(X)\,\dot\tau(X)\right]
   = \mathbb{E}\!\left[h(X)\,\tilde\Xi(Z)\,s(Z)\right],
 \end{equation}
-where 
+where
 \[
   \tilde\Xi(Z)
-  := \frac{W\,(Y-m_1(X))}{e(X)} - \frac{(\theta(X)+1)(1-W)(Y-m_0(X))}{1-e(X)}.
+  := \frac{W\,(Y-m_1(X))}{e(X)\,m_1(X)} - \frac{(1-W)(Y-m_0(X))}{(1-e(X))\,m_0(X)}.
 \]
 
-Now $T_{\theta(\cdot)} = \mathbb{E}[\phi_{\theta(\cdot)}'(X)\,\dot\theta(X)\,\Psi(Z)\,Y]$, and conditioning on $X$ as in $T_\theta$ replaces $\Psi(Z)Y$ by $m_0(X)(\theta(X)-\theta)$,
+Now $T_{\tau(\cdot)} = \mathbb{E}[\phi_{\tau(\cdot)}'(X)\,\dot\tau(X)\,\Psi(Z)\,Y]$, and conditioning on $X$ as in $T_\tau$ replaces $\Psi(Z)Y$ by $\Delta(X)$,
 \begin{equation}
-  \label{eq:T_thetax}
-  T_{\theta(\cdot)} = \mathbb{E}\!\left[\phi_{\theta(\cdot)}'(X)\bigl(\theta(X)-\theta\bigr)\,m_0(X)\,\dot\theta(X)\right] = \mathbb{E}\!\left[\phi_{\theta(\cdot)}'(X)\bigl(\theta(X)-\theta\bigr)\,\tilde\Xi(Z)\,s(Z)\right].
+  \label{eq:T_taux}
+  T_{\tau(\cdot)} = \mathbb{E}\!\left[\phi_{\tau(\cdot)}'(X)\,\Delta(X)\,\dot\tau(X)\right] = \mathbb{E}\!\left[\phi_{\tau(\cdot)}'(X)\,\Delta(X)\,\tilde\Xi(Z)\,s(Z)\right].
 \end{equation}
 
 \paragraph{Solving the resulting fixed-point equation.}
-Plugging \eqref{eq:T_theta}--\eqref{eq:T_thetax} back,
+Plugging \eqref{eq:T_tau}--\eqref{eq:T_taux} back,
 \[
-  \mu_0\,\dot\theta
-  = \mathbb{E}\!\left[\mathrm{EIF}^{(0)}_\theta(Z)\,s(Z)\right]
-    + A\,\dot\theta
-    + \mathbb{E}\!\left[\phi_{\theta(\cdot)}'(X)(\theta(X)-\theta)\,\tilde\Xi(Z)\,s(Z)\right].
+  \dot\tau
+  = \mathbb{E}\!\left[\mathrm{EIF}^{(0)}_\tau(Z)\,s(Z)\right]
+    + A\,\dot\tau
+    + \mathbb{E}\!\left[\phi_{\tau(\cdot)}'(X)\,\Delta(X)\,\tilde\Xi(Z)\,s(Z)\right].
 \]
-The scalar $\dot\theta$ appears on both sides; isolating it,
+The scalar $\dot\tau$ appears on both sides; isolating it,
 \[
-  (\mu_0 - A)\,\dot\theta
-  = \mathbb{E}\!\left[\Bigl(\mathrm{EIF}^{(0)}_\theta(Z) + \phi_{\theta(\cdot)}'(X)(\theta(X)-\theta)\,\tilde\Xi(Z)\Bigr)\,s(Z)\right].
+  (1 - A)\,\dot\tau
+  = \mathbb{E}\!\left[\Bigl(\mathrm{EIF}^{(0)}_\tau(Z) + \phi_{\tau(\cdot)}'(X)\,\Delta(X)\,\tilde\Xi(Z)\Bigr)\,s(Z)\right].
 \]
 Reading off the influence function gives the closed-form result:
 \begin{equation}
   \label{eq:eif_full}
   \boxed{\;
-  \mathrm{EIF}_\theta(Z)
-  = \frac{1}{C}\Bigl\{\mathrm{EIF}^{(0)}_\theta(Z) + \phi_{\theta(\cdot)}'(X)\bigl(\theta(X)-\theta\bigr)\,\tilde\Xi(Z)\Bigr\},\;}
+  \mathrm{EIF}_\tau(Z)
+  = \frac{1}{C}\Bigl\{\mathrm{EIF}^{(0)}_\tau(Z) + \phi_{\tau(\cdot)}'(X)\,\Delta(X)\,\tilde\Xi(Z)\Bigr\},\;}
 \end{equation}
 with
 \begin{equation}
   \label{eq:C}
-  C := \mu_0 - A
-     = \mu_0 - \mathbb{E}\!\left[\phi_\theta'(X)\,m_0(X)\bigl(\theta(X)-\theta\bigr)\right]
-     = \mu_0 - \mathbb{E}\!\left[\phi_\theta'(X)\bigl(m_1(X)-(\theta+1)\,m_0(X)\bigr)\right].
+  C := 1 - A
+     = 1 - \mathbb{E}\!\left[\phi_\tau'(X)\,\Delta(X)\right]
+     = 1 - \mathbb{E}\!\left[\phi_\tau'(X)\!\left(\frac{m_1(X)}{\mu_1}-\frac{m_0(X)}{\mu_0}\right)\right].
 \end{equation}
 
 \begin{assumption}[Regularity]
@@ -232,32 +218,31 @@ $m_0(x)>0$ almost surely, $\mu_0\in(0,\infty)$, and $C\neq 0$ in \eqref{eq:C}.
 
 \section*{Minimax optimal weights}
 
-Throughout this section $\theta$ denotes the root of
+Throughout this section $\tau$ denotes the root of
 \begin{equation}
   \label{eq:pseudotrue}
-  \mathbb{E}\bigl[\phi_s(X)\,m_0(X)\,(\theta(X)-s)\bigr]=0,
+  \mathbb{E}\bigl[\phi_s(X)\{m_1(X)-e^{s}m_0(X)\}\bigr]=0,
   \qquad
-  \phi_s(x):=\frac{e(x)(1-e(x))}{1+s\,e(x)},
+  \frac{1}{\phi_s(x)}:=\frac{1}{e(x)}+\frac{e^{s}}{1-e(x)},
 \end{equation}
-which is the defining relation $\theta=\mu_1/\mu_0-1$ evaluated at $\phi=\phi_\theta$.  Set
+which is the defining relation $\tau=\log(\mu_1/\mu_0)$ evaluated at $\phi=\phi_\tau$.  Set
 \begin{equation}
   \label{eq:LambdaQh}
-  \Lambda_P(x):=\frac{1+\theta(x)}{e(x)}+\frac{(1+\theta)^2}{1-e(x)},
+  \Lambda_P(x):=\frac{e^{\tau(x)-\tau}}{e(x)}+\frac{e^{\tau}}{1-e(x)},
   \qquad
-  \frac{dQ}{dP}:=\frac{\phi_\theta(X)\,m_0(X)}{\mu_0},
+  \frac{dQ}{dP}:=\frac{\phi_\tau(X)\,m_0(X)}{\mu_0},
   \qquad
-  h(x):=\frac{\phi_\theta(x)}{e(x)}=\frac{1-e(x)}{1+\theta\,e(x)},
+  h(x):=\frac{\phi_\tau(x)}{e(x)}=\frac{1-e(x)}{(1-e(x))+e(x)e^{\tau}} .
 \end{equation}
-and $\tau(x):=\log(1+\theta(x))$, $\tau:=\log(1+\theta)$.
 
 \begin{definition}
-$\mathcal{F}$ is the set of measurable $\varphi:\mathbb{R}^p\times(-1,\infty)\to(0,\infty)$ with $\varphi(\cdot,s)\in L^2(m_0\Lambda_P)$.  For $\varphi\in\mathcal{F}$, $\theta_\varphi(P)$ solves $\mathbb{E}[\varphi(X,s)\,m_0(X)(\theta(X)-s)]=0$, and the \emph{implemented weight} is $\vartheta_{\varphi,P}:=\varphi(\cdot,\theta_\varphi(P))$.
+$\mathcal{F}$ is the set of measurable $\varphi:\mathbb{R}^p\times\mathbb{R}\to(0,\infty)$ with $\varphi(\cdot,s)\in L^2(m_0\Lambda_P)$.  For $\varphi\in\mathcal{F}$, $\tau_\varphi(P)$ solves $\mathbb{E}[\varphi(X,s)\{m_1(X)-e^{s}m_0(X)\}]=0$, and the \emph{implemented weight} is $\vartheta_{\varphi,P}:=\varphi(\cdot,\tau_\varphi(P))$.
 \end{definition}
 
 \begin{definition}
 For measurable $\vartheta:\mathbb{R}^p\to(0,\infty)$,
 \[
-  V(\vartheta;P):=\frac{\sigma^2\,\mathbb{E}\bigl[\vartheta^2m_0\Lambda_P\bigr]}{\mathbb{E}[\vartheta m_0]^2},
+  V(\vartheta;P):=\frac{\sigma^2\,\mathbb{E}\bigl[\vartheta^2m_0\Lambda_P\bigr]}{e^{\tau}\,\mathbb{E}[\vartheta m_0]^2},
   \qquad
   R(\varphi;P):=\frac{V(\vartheta_{\varphi,P};P)}{\inf_\vartheta V(\vartheta;P)}.
 \]
@@ -271,50 +256,49 @@ $\mathcal{N}_\delta:=\bigl\{P:\ \mathbb{E}_Q[(\tau(X)-\tau)^2]\le\delta^2\bigr\}
 \label{thm:minimax}
 Under Assumptions 1--4:
 \begin{enumerate}[label=(\roman*)]
-\item $\inf_\vartheta V(\vartheta;P)=\sigma^2/\mathbb{E}[m_0/\Lambda_P]$, attained iff $\vartheta\propto\Lambda_P^{-1}$, and
+\item $\inf_\vartheta V(\vartheta;P)=\sigma^2/\bigl(e^{\tau}\mathbb{E}[m_0/\Lambda_P]\bigr)$, attained iff $\vartheta\propto\Lambda_P^{-1}$, and
 \[
   R(\varphi;P)
   = \frac{\mathbb{E}\bigl[\vartheta_{\varphi,P}^2m_0\Lambda_P\bigr]\;\mathbb{E}\bigl[m_0/\Lambda_P\bigr]}{\mathbb{E}[\vartheta_{\varphi,P}m_0]^2}
   \;\ge\;1,
 \]
-with equality iff $\vartheta_{\varphi,P}\propto\Lambda_P^{-1}$.
-\item If $\theta(\cdot)\equiv s$ then $\Lambda_P^{-1}=\phi_s/(1+s)$, and
+with equality iff $\vartheta_{\varphi,P}\propto\Lambda_P^{-1}$.  In particular $R$ is unchanged by any reparametrization $g(\tau)$ with $g'(\tau)\neq0$.
+\item If $\tau(\cdot)\equiv s$ then $\Lambda_P^{-1}=\phi_s$, and
 \[
-  \inf_{\varphi\in\mathcal{F}}\ \sup_{s\in(-1,\infty)}\ \sup_{m_0}\ R(\varphi;P)=1,
+  \inf_{\varphi\in\mathcal{F}}\ \sup_{s\in\mathbb{R}}\ \sup_{m_0}\ R(\varphi;P)=1,
 \]
 attained iff $\varphi(\cdot,s)\propto\phi_s$ for almost every $s$.
-\item $R(\phi_\theta;P)=1+\mathbb{V}_Q\bigl[(\tau(X)-\tau)\,h(X)\bigr]+O(\delta^3)$, and
+\item $R(\phi_\tau;P)=1+\mathbb{V}_Q\bigl[(\tau(X)-\tau)\,h(X)\bigr]+O(\delta^3)$, and
 \begin{equation}
   \label{eq:minimaxvalue}
-  \inf_{\varphi\in\mathcal{F}}\ \sup_{s\in(-1,\infty)}\ \sup_{m_0}\ \sup_{P\in\mathcal{N}_\delta}\ R(\varphi;P)
+  \inf_{\varphi\in\mathcal{F}}\ \sup_{s\in\mathbb{R}}\ \sup_{m_0}\ \sup_{P\in\mathcal{N}_\delta}\ R(\varphi;P)
   \;=\;1+\delta^2\Bigl(\operatorname*{ess\,sup}_Q h\Bigr)^2+O(\delta^3),
 \end{equation}
-attained iff $\varphi(\cdot,s)\propto\phi_s$ for almost every $s$.  Under Assumption 2, $\operatorname*{ess\,sup}_Q h\le(1-\eta)/(1+\theta\eta)\le1$.
+attained iff $\varphi(\cdot,s)\propto\phi_s$ for almost every $s$.  Under Assumption 2, $\operatorname*{ess\,sup}_Q h\le(1-\eta)/\bigl((1-\eta)+\eta e^{\tau}\bigr)\le1$.
 \end{enumerate}
 \end{theorem}
 
 \begin{proof}
-\emph{(i)} For $\vartheta$ a function of $x$ alone, $\phi_\theta'=\phi_{\theta(\cdot)}'=0$, so $A=0$ and $C=\mu_0$ in \eqref{eq:C}, and \eqref{eq:eif_full} reduces to $\mathrm{EIF}_\theta=\mu_0^{-1}\mathrm{EIF}^{(0)}_\theta$.  Squaring and conditioning on $(X,W)$ as in \eqref{eq:Vtheta_generic},
+\emph{(i)} For $\vartheta$ a function of $x$ alone, $\phi_\tau'=\phi_{\tau(\cdot)}'=0$, so $A=0$ and $C=1$ in \eqref{eq:C}, and \eqref{eq:eif_full} reduces to $\mathrm{EIF}_\tau=\mathrm{EIF}^{(0)}_\tau$.  Squaring, the cross term vanishes because $W(1-W)=0$, and conditioning on $(X,W)$,
 \[
-  \mathbb{E}[\mathrm{EIF}_\theta^2]
-  = \frac{1}{\mathbb{E}[\vartheta m_0]^2}\,
-    \mathbb{E}\!\left[\vartheta^2\!\left(\frac{\mathbb{V}[Y\mid X,1]}{e}+\frac{(1+\theta)^2\,\mathbb{V}[Y\mid X,0]}{1-e}\right)\right],
+  \mathbb{E}[\mathrm{EIF}_\tau^2]
+  = \mathbb{E}\!\left[\vartheta^2\!\left(\frac{\mathbb{V}[Y\mid X,1]}{e\,\mu_1^2}+\frac{\mathbb{V}[Y\mid X,0]}{(1-e)\,\mu_0^2}\right)\right].
 \]
-and Assumption 3 with $m_1(X)=m_0(X)(1+\theta(X))$ makes the bracket $\sigma^2m_0\Lambda_P$, so $\mathbb{E}[\mathrm{EIF}_\theta^2]=V(\vartheta;P)$.  With $g:=m_0\Lambda_P$,
+Assumption 3 gives $\mathbb{V}[Y\mid X,w]=\sigma^2m_w$, and $m_1=m_0e^{\tau(X)}$, $\mu_1=e^{\tau}\mu_0$, so the bracket equals
+\[
+  \frac{\sigma^2m_0}{\mu_0^2}\left(\frac{e^{\tau(X)-2\tau}}{e}+\frac{1}{1-e}\right)
+  = \frac{\sigma^2m_0\Lambda_P}{e^{\tau}\mu_0^2},
+\]
+i.e.\ $\mathbb{E}[\mathrm{EIF}_\tau^2]=V(\vartheta;P)$ with $\mu_0=\mathbb{E}[\vartheta m_0]$.  With $g:=m_0\Lambda_P$,
 \[
   \mathbb{E}[\vartheta m_0]^2=\mathbb{E}\!\left[\bigl(\vartheta\sqrt g\bigr)\bigl(m_0/\sqrt g\bigr)\right]^2
   \le \mathbb{E}\bigl[\vartheta^2g\bigr]\,\mathbb{E}\bigl[m_0^2/g\bigr],
   \qquad m_0^2/g=m_0/\Lambda_P,
 \]
-with equality iff $\vartheta\propto m_0/g=\Lambda_P^{-1}$.  Rearranging gives the bound on $V$, and dividing gives the displayed $R$.
+with equality iff $\vartheta\propto m_0/g=\Lambda_P^{-1}$.  Rearranging gives the bound on $V$, and dividing gives the displayed $R$, in which the factor $e^{\tau}$ cancels.  Any reparametrization multiplies numerator and denominator of $R$ by the same $g'(\tau)^2$, since $\tau$ in \eqref{eq:LambdaQh} is a functional of $P$ alone.
 
-\emph{(ii)} If $\theta(\cdot)\equiv s$ then $\theta_\varphi(P)=s$ for every $\varphi$, and
-\[
-  \Lambda_P=\frac{1+s}{e}+\frac{(1+s)^2}{1-e}
-  =\frac{(1+s)\bigl[(1-e)+(1+s)e\bigr]}{e(1-e)}
-  =\frac{(1+s)(1+se)}{e(1-e)},
-\]
-so $\Lambda_P^{-1}=\phi_s/(1+s)$, which does not involve $m_0$.  By (i), $R\ge1$ with equality iff $\varphi(\cdot,s)\propto\phi_s$; since $\varphi(\cdot,s)$ may be chosen separately for each $s$ and the condition is free of $m_0$, the supremum equals $1$ exactly under that condition.
+\emph{(ii)} If $\tau(\cdot)\equiv s$ then $m_1=e^{s}m_0$, so $\tau_\varphi(P)=s$ for every $\varphi$, and
+$\Lambda_P=1/e+e^{s}/(1-e)=1/\phi_s$ by \eqref{eq:pseudotrue}, which does not involve $m_0$.  By (i), $R\ge1$ with equality iff $\varphi(\cdot,s)\propto\phi_s$; since $\varphi(\cdot,s)$ may be chosen separately for each $s$ and the condition is free of $m_0$, the supremum equals $1$ exactly under that condition.
 
 \emph{(iii)} Write $\langle u,v\rangle_P:=\mathbb{E}[uv\,m_0\Lambda_P]$ and $\psi_P:=\Lambda_P^{-1}$, so that $\mathbb{E}[\vartheta^2m_0\Lambda_P]=\|\vartheta\|_P^2$, $\mathbb{E}[m_0/\Lambda_P]=\|\psi_P\|_P^2$ and $\mathbb{E}[\vartheta m_0]=\langle\vartheta,\psi_P\rangle_P$.  Then (i) reads
 \begin{equation}
@@ -327,22 +311,21 @@ and since $R$ is invariant under $\vartheta\mapsto c\vartheta$ we may write $\va
   R=1+\frac{\|u\|_P^2}{\|\psi_P\|_P^2}.
 \end{equation}
 
-Let $\psi_0:=\Lambda_0^{-1}$ with $\Lambda_0:=\Lambda_P$ at $\theta(\cdot)\equiv\theta$.  Only the first term of $\Lambda_P$ depends on $\theta(\cdot)$, so $\Lambda_P-\Lambda_0=(\theta(X)-\theta)/e$ and
+Let $\Lambda_0:=\Lambda_P$ at $\tau(\cdot)\equiv\tau$ and $\psi_0:=\Lambda_0^{-1}=\phi_\tau$.  Only the first term of $\Lambda_P$ depends on $\tau(\cdot)$, so with $v(x):=\tau(x)-\tau$,
 \[
+  \Lambda_P-\Lambda_0=\frac{e^{v}-1}{e}=\frac{v}{e}+O(\delta^2),
+  \qquad
   \psi_0-\psi_P=\frac{\Lambda_P-\Lambda_0}{\Lambda_0\Lambda_P}
-  =\frac{\theta(X)-\theta}{e\,\Lambda_0}\cdot\frac{1}{\Lambda_P}.
+  =\frac{v}{e\,\Lambda_0}\,\psi_0+O(\delta^2)
+  =w\,\psi_0+O(\delta^2),
 \]
-By \eqref{eq:LambdaQh}, $1/(e\Lambda_0)=h/(1+\theta)$, and $(\theta(x)-\theta)/(1+\theta)=e^{\tau(x)-\tau}-1=(\tau(x)-\tau)+O(\delta^2)$, while $\Lambda_P^{-1}=\psi_0+O(\delta)$.  Hence
+where $w:=v\,h$, using $1/(e\Lambda_0)=\phi_\tau/e=h$.  Since $\psi_0^2m_0\Lambda_0=m_0/\Lambda_0=\phi_\tau m_0=\mu_0\,dQ/dP$, for any $v'$,
 \[
-  \psi_0-\psi_P=w\,\psi_0+O(\delta^2),\qquad w:=(\tau(X)-\tau)\,h(X).
-\]
-Since $\psi_0=\phi_\theta/(1+\theta)$, we have $\psi_0^2m_0\Lambda_0=m_0/\Lambda_0=\phi_\theta m_0/(1+\theta)$, so for any $v$,
-\[
-  \|v\psi_0\|_0^2=\frac{\mu_0}{1+\theta}\,\mathbb{E}_Q[v^2],
+  \|v'\psi_0\|_0^2=\mu_0\,\mathbb{E}_Q[v'^2],
   \qquad
-  \langle v\psi_0,\psi_0\rangle_0=\frac{\mu_0}{1+\theta}\,\mathbb{E}_Q[v],
+  \langle v'\psi_0,\psi_0\rangle_0=\mu_0\,\mathbb{E}_Q[v'],
   \qquad
-  \|\psi_0\|_0^2=\frac{\mu_0}{1+\theta}.
+  \|\psi_0\|_0^2=\mu_0 .
 \]
 Taking $\vartheta=\psi_0$ in \eqref{eq:Rexact}, $u$ is the component of $\psi_0-\psi_P$ orthogonal to $\psi_P$, and the three displays give
 \[
@@ -350,120 +333,26 @@ Taking $\vartheta=\psi_0$ in \eqref{eq:Rexact}, $u$ is the component of $\psi_0-
 \]
 which is the first claim of (iii).
 
-For the value, $\mathbb{V}_Q[w]\le\mathbb{E}_Q[(\tau(X)-\tau)^2h^2]\le\delta^2(\operatorname*{ess\,sup}_Qh)^2$.  Taking $\tau(X)-\tau=\delta(\mathbf{1}_A-Q(A))\{Q(A)(1-Q(A))\}^{-1/2}$ with $Q(A)\to0$ and $A$ concentrating where $h$ approaches its essential supremum gives $\mathbb{E}_Q[w]\to0$ and $\mathbb{E}_Q[w^2]\to\delta^2(\operatorname*{ess\,sup}_Qh)^2$, so the bound is approached.
+For the value, $\mathbb{V}_Q[w]\le\mathbb{E}_Q[v^2h^2]\le\delta^2(\operatorname*{ess\,sup}_Qh)^2$.  Taking $v=\delta(\mathbf{1}_A-Q(A))\{Q(A)(1-Q(A))\}^{-1/2}$ with $Q(A)\to0$ and $A$ concentrating where $h$ approaches its essential supremum gives $\mathbb{E}_Q[w]\to0$ and $\mathbb{E}_Q[w^2]\to\delta^2(\operatorname*{ess\,sup}_Qh)^2$, so the bound is approached.
 
-For optimality, by (ii) any $\varphi$ with $\sup R=1+O(\delta^2)$ has $\vartheta_{\varphi,P}=\psi_0+u_0$ with $\langle u_0,\psi_0\rangle_0=0$ and $\|u_0\|_0=O(\delta)$.  Then $\vartheta_{\varphi,P}-\psi_P=u_0+(\psi_0-\psi_P)+O(\delta^2)$, and $\psi_0-\psi_P$ changes sign when $\tau(\cdot)-\tau$ does, while $\mathcal{N}_\delta$ is invariant under that reflection.  Applying $\|a+b\|^2+\|a-b\|^2=2\|a\|^2+2\|b\|^2$ to $a=u_0$, $b=\psi_0-\psi_P$,
+For optimality, by (ii) any $\varphi$ with $\sup R=1+O(\delta^2)$ has $\vartheta_{\varphi,P}=\psi_0+u_0$ with $\langle u_0,\psi_0\rangle_0=0$ and $\|u_0\|_0=O(\delta)$.  Then $\vartheta_{\varphi,P}-\psi_P=u_0+(\psi_0-\psi_P)+O(\delta^2)$, and $\psi_0-\psi_P$ changes sign when $v$ does, while $\mathcal{N}_\delta$ is invariant under that reflection.  Applying $\|a+b\|^2+\|a-b\|^2=2\|a\|^2+2\|b\|^2$ to $a=u_0$, $b=\psi_0-\psi_P$,
 \[
   \max_\pm\bigl\|u_0\pm(\psi_0-\psi_P)\bigr\|_0^2\ \ge\ \|u_0\|_0^2+\|\psi_0-\psi_P\|_0^2,
 \]
 so by \eqref{eq:Rexact} the supremum over $\mathcal{N}_\delta$ is minimised at $u_0=0$, i.e.\ at $\varphi(\cdot,s)\propto\phi_s$.
 
-Finally $\partial_e\{(1-e)/(1+\theta e)\}=-(1+\theta)/(1+\theta e)^2<0$, so $h$ is decreasing in $e$ and Assumption 2 gives $h\le(1-\eta)/(1+\theta\eta)$; and $1+\theta\eta\ge1-\eta$ for $\theta\ge-1$, so this is at most $1$.
+Finally $\partial_e h=-e^{\tau}/\bigl((1-e)+e\,e^{\tau}\bigr)^2<0$, so $h$ is decreasing in $e$ and Assumption 2 gives $h\le(1-\eta)/\bigl((1-\eta)+\eta e^{\tau}\bigr)$, which is at most $1$ since $\eta e^{\tau}>0$.
 \end{proof}
 
 \begin{proposition}
-At $\varphi=\phi_\theta$ and $\theta(\cdot)\equiv\theta$,
+At $\varphi=\phi_\tau$ and $\tau(\cdot)\equiv\tau$,
 \[
-  V(\phi_\theta;P)=\frac{\sigma^2(1+\theta)}{\mathbb{E}[\phi_\theta(X)m_0(X)]},
-  \qquad
-  V\bigl(\phi_\theta;P\bigr)\big/(1+\theta)^2=\frac{\sigma^2}{(1+\theta)\,\mathbb{E}[\phi_\theta(X)m_0(X)]}
+  V(\phi_\tau;P)=\frac{\sigma^2}{\mu_1}=\frac{\sigma^2}{\mathbb{E}[\phi_\tau(X)\,m_1(X)]} .
 \]
-for $\theta$ and for $\tau=\log(1+\theta)$ respectively.
 \end{proposition}
 
 \begin{proof}
-By (i) and (ii) of Theorem \ref{thm:minimax}, $V=\sigma^2/\mathbb{E}[m_0/\Lambda_0]$ with $m_0/\Lambda_0=\phi_\theta m_0/(1+\theta)$.  The second expression is the delta-method image of the first under $\theta\mapsto\log(1+\theta)$.
+By (i) and (ii) of Theorem \ref{thm:minimax}, $V=\sigma^2/\bigl(e^{\tau}\mathbb{E}[m_0/\Lambda_0]\bigr)$ with $m_0/\Lambda_0=\phi_\tau m_0$, so $V=\sigma^2/(e^{\tau}\mu_0)=\sigma^2/\mu_1$.  At $\tau(\cdot)\equiv\tau$, $m_1=e^{\tau}m_0$, so $\mu_1=\mathbb{E}[\phi_\tau m_1]$.
 \end{proof}
 
-\section*{Superseded formulation}
-
-\paragraph{The problem.} Define the relative-efficiency loss
-\[
-  L(\phi;\theta,m_1) \;:=\; \frac{V_\theta(\phi;\theta,m_1)}{V_\theta(\phi^{\text{ref}};\theta,m_1)},
-  \qquad \phi^{\text{ref}}(X) := \frac{e(X)(1-e(X))}{1+\theta\,e(X)},
-\]
-and solve
-\begin{equation}
-  \label{eq:minimax}
-  \inf_{\phi\in\mathcal{F}}\;\sup_{m_1\in\mathcal{T}(\phi)} L(\phi;\theta,m_1).
-\end{equation}
-
-\paragraph{The claim.} The saddle point is $(\phi^\star,m_1^\star) = (\phi^{\text{ref}},\,(\theta+1)m_0)$, and the minimax value equals $1$.
-
-\paragraph{Verification.} It suffices to check the two saddle-point inequalities
-\begin{equation}
-  \label{eq:saddle}
-  L(\phi^{\text{ref}};\theta,m_1) \;\le\; L(\phi^{\text{ref}};\theta,m_1^\star) \;\le\; L(\phi;\theta,m_1^\star)
-  \qquad\forall\,\phi\in\mathcal{F},\;m_1\in\mathcal{T}(\phi^{\text{ref}}).
-\end{equation}
-
-\emph{Left inequality (max in $m_1$):} $L(\phi^{\text{ref}};\theta,m_1)\equiv 1$ by definition, so both sides equal~$1$.
-
-\emph{Right inequality (min in $\phi$):} At $m_1^\star=(\theta+1)m_0$ we have $\theta(X)\equiv\theta$, so the factor $\theta(X)-\theta$ kills both the second term of \eqref{eq:eif_full} and the correction $A$ in \eqref{eq:C}.  Thus $C=\mu_0$ and the influence function collapses to
-\[
-  \mathrm{EIF}_\theta(Z) \;=\; \mu_0^{-1}\,\mathrm{EIF}^{(0)}_\theta(Z)
-  \;=\; \frac{\phi(X)}{\mu_0}\!\left[\frac{W\bigl(Y-m_1(X)\bigr)}{e(X)} \;-\; \frac{(\theta+1)(1-W)\bigl(Y-m_0(X)\bigr)}{1-e(X)}\right].
-\]
-
-\emph{Variance computation.} The asymptotic variance is $V_\theta(\phi;\theta,m_1^\star) = \mathbb{E}[\mathrm{EIF}_\theta(Z)^2]$.  Squaring the EIF the cross term vanishes because $W(1-W)=0$, leaving
-\[
-  \mathrm{EIF}_\theta(Z)^2
-  = \frac{\phi(X)^2}{\mu_0^2}\!\left[\frac{W\bigl(Y-m_1(X)\bigr)^2}{e(X)^2}
-    + \frac{(\theta+1)^2(1-W)\bigl(Y-m_0(X)\bigr)^2}{(1-e(X))^2}\right].
-\]
-Conditioning on $(X,W)$ and using $\mathbb{E}[W\mid X]=e$, $\mathbb{E}[1-W\mid X]=1-e$, and $\mathbb{E}[(Y-m_W)^2\mid X,W] = \mathbb{V}[Y\mid X,W]$,
-\begin{equation}
-  \label{eq:Vtheta_generic}
-  V_\theta(\phi;\theta,m_1^\star)
-  = \frac{1}{\mu_0^2}\,\mathbb{E}\!\left[\phi(X)^2\!\left(\frac{\mathbb{V}[Y\mid X,1]}{e(X)} + \frac{(\theta+1)^2\,\mathbb{V}[Y\mid X,0]}{1-e(X)}\right)\right].
-\end{equation}
-
-\emph{Plugging in homoskedasticity} $\mathbb{V}[Y\mid X,W]=\sigma^2 m_W(X)$, at $m_1^\star=(\theta+1)m_0$ each branch is proportional to $m_0(X)$:
-\[
-  \frac{\mathbb{V}[Y\mid X,1]}{e} \;=\; \frac{\sigma^2(\theta+1)\,m_0(X)}{e},
-  \qquad
-  \frac{(\theta+1)^2\,\mathbb{V}[Y\mid X,0]}{1-e} \;=\; \frac{\sigma^2(\theta+1)^2\,m_0(X)}{1-e}.
-\]
-Factoring $\sigma^2(\theta+1)\,m_0(X)$ out of both summands and putting them over the common denominator $e(1-e)$,
-\[
-  \frac{\sigma^2(\theta+1)\,m_0(X)}{e} + \frac{\sigma^2(\theta+1)^2\,m_0(X)}{1-e}
-  \;=\; \sigma^2(\theta+1)\,m_0(X)\,\frac{(1-e) + (\theta+1)\,e}{e(1-e)}
-  \;=\; \sigma^2 m_0(X)\,\frac{(\theta+1)(1+\theta e)}{e(1-e)},
-\]
-since $(1-e)+(\theta+1)e = 1+\theta e$.  Substituting back into \eqref{eq:Vtheta_generic},
-\begin{equation}
-  \label{eq:Vtheta_hom}
-  V_\theta(\phi;\theta,m_1^\star)
-  \;=\; \frac{\sigma^2}{\mu_0(\phi)^2}\,\mathbb{E}\!\left[m_0(X)\,\phi(X)^2\,\Lambda^{(1)}_{\text{hom}}(X)\right],
-  \qquad
-  \Lambda^{(1)}_{\text{hom}}(X) \;=\; \frac{(\theta+1)(1+\theta e)}{e(1-e)}.
-\end{equation}
-
-\emph{Reduction to a Rayleigh quotient.}  Recall $\mu_0(\phi) = \mathbb{E}[\phi(X)\,Y(0)] = \mathbb{E}[\phi(X)\,m_0(X)]$ by iterated expectations, so \eqref{eq:Vtheta_hom} has the form
-\[
-  V_\theta(\phi;\theta,m_1^\star)
-  \;=\; \frac{\sigma^2\,\mathbb{E}\!\left[\phi^2\,g\right]}{\bigl(\mathbb{E}\!\left[\phi\,h\right]\bigr)^2},
-  \qquad
-  g(X) := m_0(X)\,\Lambda^{(1)}_{\text{hom}}(X),
-  \quad
-  h(X) := m_0(X).
-\]
-
-\emph{Cauchy--Schwarz step.}  Write the inner product
-\[
-  \mathbb{E}[\phi\,h] \;=\; \mathbb{E}\!\left[\bigl(\phi\sqrt{g}\bigr)\cdot\bigl(h/\sqrt{g}\bigr)\right].
-\]
-The Cauchy--Schwarz inequality then gives:
-\[
-  \bigl(\mathbb{E}[\phi\,h]\bigr)^2 \;\le\; \mathbb{E}\!\left[\phi^2\,g\right]\cdot\mathbb{E}\!\left[h^2/g\right],
-\],or rearranging:
-\[
-  \frac{\mathbb{E}[\phi^2 g]}{\bigl(\mathbb{E}[\phi h]\bigr)^2} \;\ge\; \frac{1}{\mathbb{E}[h^2/g]},
-\]
-with equality iff $\phi\sqrt g \propto h/\sqrt g$:
-\[
-  \phi(X) \;\propto\; \frac{h(X)}{g(X)} \;=\; \frac{1}{\Lambda^{(1)}_{\text{hom}}(X)} \;=\; \frac{e(1-e)}{(\theta+1)(1+\theta e)} \;\propto\; \phi^{\text{ref}}(X).
-\]
-
-Both inequalities in \eqref{eq:saddle} hold, so $(\phi^{\text{ref}},m_1^\star)$ is a saddle point and the minimax value of \eqref{eq:minimax} is~$1$, attained uniquely by $\phi^\star=\phi^{\text{ref}}$.
 \end{document}

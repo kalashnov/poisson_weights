@@ -1,0 +1,552 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
+\usepackage{hyperref}
+\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools}
+\usepackage{hyphenat}
+\usepackage{subfig}
+\usepackage{xcolor}
+
+%%% PAGE DIMENSIONS
+\usepackage[left=2cm,right=2cm,
+    top=2cm,bottom=2cm,bindingoffset=0cm]{geometry} % to change the page dimensions
+\geometry{a4paper}
+
+\usepackage[natbibapa]{apacite}
+\bibliographystyle{apacite}
+
+\usepackage{cmap}					% search in PDF
+\usepackage[T2A]{fontenc}			% font encoding
+\usepackage[english]{babel}	% localization and hyphenation
+\usepackage{float}
+\setlength{\parindent}{1em}
+\setlength{\parskip}{1em}
+\renewcommand{\baselinestretch}{1.3}
+
+
+\theoremstyle{plain}
+\newtheorem{prop}{Proposition}
+
+\newtheorem{coro}[prop]{Corollary}
+\newtheorem{lemm}[prop]{Lemma}
+\newtheorem{theo}[prop]{Theorem}
+
+\title{Poisson regression under heterogeneous treatment effects}
+\date{\today}
+\author{Georgy Kalashnov, Lihua Lei}
+
+\begin{document}
+\maketitle
+
+
+\begin{abstract}
+We study the properties of Poisson regression under heterogeneous treatment effects as a better choice compared to log-linear regression in policy evaluation setting. Log-linear regression aggregates multiplicative individual effects from both large and small subjects with equal weights. However, a policy evaluation study is interested in a ratio of the means rather than mean of the ratios, which is to give weights proportional to the subject sizes. We show that Poisson regression estimates exactly the ratio of means in different specifications. We show that a Poisson regression on treatment and controls estimates a convex average of the individual effects in the spirit of \cite{angrist1998} in the case when the effects are small and average treatment on control, when the effects are large and positive, and average treatment on the treated, when the effects are small. We also show a double robust way to estimate an average treatment effect in Poisson regression.
+\end{abstract}
+
+
+New talk points
+\begin{itemize}
+    \item If the data is like time-series, log is really good
+    \item If the data is like every individual on it's own matters and THE representative individual matters
+    \item If the data is like -- units of consumer index (like, think of Cobb douglas production function) or Consumer/price index as in....
+    \item If the data is like aggregate spendings, aggregate whatever...
+    \item Makes sense to do logs, when the unit of observation and average across units is well defined...
+    \item Chens argument that everyone can divide is false, because devision is not only about mean, but also about variance
+    \item Chen's argument of that it is ATE is false, because It doesn't inform on when what estimate you should and this IS what meaningful econometrics is about
+    \item The example of Bill Gates is weak as well
+    \item I generally do not like the "utility, non-linearity" argument because it shifts attention away from why do we have such utility. Which is econometrics question as well, because it is data-dependent
+    \item I think this is another paper
+\end{itemize}
+
+
+
+
+\section{Introduction}
+
+
+
+Consider a policy evaluation question, where we are interested in a multiplicative effect: what is the percentage increase of the outcome variable after implementing a policy. A researcher could be interested in the multiplicative effect rather than an additive one, because it could have better external validity properties \citep{hernan2010causal,bareinboim2014transportability,dahabreh2019extending}. Sometimes it could be easier to satisfy some identification assumptions, e.g. parallel trends assumption \citep{wooldridgeSimpleApproachesNonlinear2023}. Finally, a researcher could be merely interested in a percentage interpretation, e.g. in price indexes \citep{diamond2021standard}.
+
+
+The common approach is to run a log-linear regression and target the estimand $\mathbb{E}[\log(Y(1)/Y(0))]$, where $Y(1)$ and $Y(0)$ are potential realizations of the outcome variable under different treatments. Then the effects are small, this estimand approximates $\mathbb{E}[Y(1)/Y(0) - 1]$, which is interpreted as a percentage increase of $Y$ after being treated.
+
+In this paper, however, we argue that for a typical policy evaluation question, it would be more suitable to estimate $\mathbb{E}[Y(1)]/\mathbb{E}[Y(0)] - 1$. Unlike the more commonly used log-linear estimand this value could be interpreted as a total percentage increase of $Y$ across all of the sample after universal policy adoption.
+
+To give a toy example, consider a governmental aid program aimed to help unemployed people find a job. Suppose in a large county the program have a limited impact and decreases the number of unemployed from 1000 to 990, while in a smaller county the effect is dramatic and doubles down the number of unemployed from 20 to 10. Clearly, on a nation-wise level the effect is still small and results in approximately 2\% decrease in unemployment, while a typical log-linear estimand would be 25.5\%: an average of 1\% and 50\%.
+
+The $\mathbb{E}[Y(1)]/\mathbb{E}[Y(0)] - 1$ can be estimated with a pair Poisson regression in an RCT setting \citep{cohn2022count, chen2022log}. We additionally show that in an often used specification on treatment and flexible controls Poisson regression estimates a convex average of the individual effects weighted by the variance of the treatment conditional on the covariate ($\mathbb{V}_n[W_i | X_i]$) in the case, when the effects are close to zero. When the effects are large and positive, Poisson regression estimates an average treatment on controls. Finally, when the effects are large and negative, Poisson regression estimates an average treatment on the treated. Our result are an analog of \cite{angrist1998} results for Poisson regression. Analagously, they work under unconfoundedness assumption and the assumption that the model of propensity score is linear in the covariates. The linearity in the covariates could be achieved if enough controls and their transformations are included, i.e. the controls are flexible. 
+
+Though widely used, in a general case, a regression on treatment and controls without interactions is misspecified, therefore we derive a doubly-robust ATE estimator based on Poisson regression. We propose to run a Poisson regression on the treatment effect, covariates and interaction of the treatment with covariates, weighted by inverse propensity score. In the linear regression in would suffice to adjust the covariates to mean zero for the coefficient by the treatment variable to have an ATE interpretation. However this trick doesn't work in the Poisson regression case and we propose to perform a correction procedure after fitting the model. 
+
+\paragraph{Related literature}
+Our research is related to the literature on properties of log-linear models and Poisson regression. The classical papers on Poisson regression, e.g. \cite{gourieroux1984pseudo} and \citet[Chapter 18.2]{wooldridge2010econometric}
+argue the robustness of the Poisson regression estimate to misspecification given the correct specification of conditional mean. In particular Poisson regression estimator still produces a consistent estimate if the variable is continuous and positive. Also, unlike log-linear model, the Poisson regression is still consistent under incorrect model of the variance \cite{silva2006log}. However, this result still requires the conditional expectation to be correctly specified, therefore, the common way to include the treatment variable and the controls in a linear way fails this assumption under heterogeneity of the effects. In this paper we analyse the behaviour of Poisson regression under this particular misspecification of the conditional mean and conclude that the model estimates a reasonable and interpretable quantity.
+
+Among more recent papers \cite{chen2022log} analyse the alternatives to log-linear regression in the presence of zeros in the data. They show that any other log-like outcome transformation, which is tolerant to zeros is sensitive to scaling of the average treatment effects estimator. Among other options, they propose to use a binary Poisson regression. Also they highlight the decompostion into extensive and intensive margin in the log-like-linear setting. \cite{cohn2022count} overview the properties of Poisson regression, however they assume a correct specification of the mean. \cite{wooldridgeSimpleApproachesNonlinear2023} Discuss the estimand of the Poisson regression and other generalized linear models in panel data with a conditional mean being correctly specified.
+
+Our research is related to the literature on the linear in the treatment effect regression under heterogeneity of treatment effects. \cite{angrist1998} derive the estimand weights for a linear regression. \cite{de2020two} derive the estimand weights for a linear regression in a two-way fixed effects model. \cite{borusyak2024negative} underline the importance and distinction between ex-ante and ex-post weights and get a rather general result for a linear regression. List other papers.
+
+
+\section{Notation}
+
+In this paper, we use the potential outcomes framework \citep{imbens2015causal} to model the data with heterogeneous treatment effects. We consider that we observe an i.i.d sample of $n$ points $(Y_i, W_i, X_i)$, where $X_i \in \mathcal{X}$ are observed pre-treatment covariates (constant is always included), $W_i$ is binary treatment arm, $Y_i = Y(W_i) \in \mathbb{R}_+$ is the outcome variable, which is equal to one of the two potential outcomes $Y(0), Y(1)$. We assume unconfoundedness on observables:
+\begin{equation} \label{unconf}
+    Y(0), Y(1) \perp W_i \mid X_i
+\end{equation}
+
+We further denote $\theta_i = \frac{Y(1) - Y(0)}{Y(0)}$ for the cases, when $Y(0)$ is non-zero. Throughout the paper, we never use $\theta$ notation when $Y(0)$ can be zero, therefore, we can define it as any arbitrary number.
+
+Finally, for notational simplicity we denote sample conditional mean $\mathbb{E}_n[Y \mid X = x] = \sum_{X_i = x} Y_i / \sum_{X_i = x} 1$. In the case, when $\sum_{X_i = x} 1 = 0$ we would set the value arbitrary to 0. Further shortcuts include $\mathbb{E}_n[Y \mid X]$, meaning the sample conditional mean as a function of $X$.% In all of the cases throughout this paper the sample conditional mean is multiplied by 0 if this happens.
+
+For notational simplicity we define the following projection operator: % cite Chamberlain here
+\begin{equation}
+    \mathbb{E}^\ast[y \mid X] = X^\prime \mathbb{E}[XX^\prime]^{-1}\mathbb{E}[Xy]
+\end{equation}
+Then constant is always included in $X$ and pseudoinverse is used, if $\mathbb{E}[XX^\prime]$ non-invertible.
+
+    
+
+
+\section{Examples}
+
+make a theory more modular here. Allow for interventions, but also make it clear, that it is not only about binary variance (instrument)
+
+Yes, in the structural models is a good way to think of intervention as an instrument
+
+\subsection{Examples}
+
+\paragraph{Non-linear least squares and statistical testing}
+
+$$\mathbb{E}(Y_i - f_\theta(aW_i + \nu X_i))^2$$ 
+
+$$\mathbb{E}(Y_i - aW_i + \nu X_i)^2$$ 
+well, honestly, we know that under unconfoundedness, this is not of the right form. So, we need to assume correct linear specification
+
+Apply FWL and extend:
+$$\mathbb{E}( -2a(Y_i - m(X_i))(W_i - e(X_i)) + a^2(W_i - e(X_i))^2)$$ 
+
+\paragraph{Policy evaluation}
+$$\mathbb{E}[Y_i(a) - c(a) | X_i] = 0$$
+
+Tech something I have on paper!
+
+\paragraph{Production aggregation}
+
+\textit{Applied research examples:} Macro ... \cite{}
+\textit{Decision:} Basically we estimate elasticity of supply here. Tell a more coherent story and why do we need it here!
+
+
+
+
+Consider a problem of the following form:
+$$O = \int^N y(x_i) di \to \min$$
+s.t. $$\int^N w(x_i) di \geq B$$
+
+Some instances of this problem include e.g. minimizing total cost of production of $Y$ goods on $N$ factories, or maximizing the aggregate output index, given costs constraints. Monopolistic intermediaries as well.
+
+The objective is to find an elasticity of total costs with respect to production requirement. To solve that We write down a Lagrangian
+
+$$\log\int^N c(x_i) di - \lambda(\log\int^N y(x_i) di - \log B)$$
+
+Optimal $\lambda$ consititutes an elasticity of the cost function of interest.
+
+Solving for $y$, and $c$ we get a dual problem, which is a loss function in the form...
+
+Speak about what if $y$ guys behave suboptimal with some program... E.g. monopolistic, or... 
+
+Need to state how from the very beggining to consider this as the loss in THAT form
+
+\paragraph{Lerner index}
+
+\textit{Store level data:}
+$$\mathbb{E}[Y(P)(P - AC(P))] \to \min_P$$
+
+Solving this problem gives a lerner index of market power (citations and prelimiaries of why measuring markup through elasticity is useful). The monopolist problem also reduces to elasticity estimation. If we reparametrize the problem and treat average markup as an 'action', the optimal value of the 'action' is lerner index, therefore we can use this formulation as a loss function for the purpose above.
+
+(mb tell the story through differentiating and then ...)
+
+$$\mathbb{E}[(P(Y) - AC(Y)) + (dP/dY - MC(Y)/Y + AC(Y)/Y)] = 0$$
+
+% HOW PEOPLE DEFINE average lerner index ...
+% In trade people use Poission regression (because they think it is count)
+
+\section{Additive vs multiplicative}
+
+Several authors (e.g., Blot and to identify the groups that will benefit most from intervention. In the absence Day, 1979; Rothman et al., 1980; Saracci, 1980) have referred to additive effect modification as the one of interest for public health purposes
+
+
+todo, write a whole section on 
+
+> Collapsibility and the odds ratio.  read to motivate the odds ratio thing
+same for Multiplicative survival model.
+same for Multiplicative structural nested mean models
+So far in this book we have referred to lack of exchangeability multiple times.
+OUTCOME REGRESSION AND PROPENSITY SCORE
+Multiplicative structural mean models and IV estimation.
+Structural nested cumulative failure time (CFT) models and cumulative survival time (CST) models.
+
+So, how we deal with several guys with heterogeneity in percentages. Multiplicative means percentages are more stable. But that is not the only reason. They can be stable on different dimensions. Example: price index, stable in income, not stable in products. something can be stable state level, but unstable county level, something can be stable in time, but unstable unit-wise
+
+\textcolor{red}{Can I give rationale that ratio treatment effects could be better extrapolated!}
+\textcolor{red}{I need the statistical decision theory approach here I think}
+
+\section{A regression on treatment and controls}
+
+A typical approach to the analysis of treatment effects under unconfoundedness is to run a regression on binary treatment and flexible controls. In this section we show the convergence of this estimate to a weighted average of individual treatment effects. 
+
+Consider a Poisson regression with a link function:
+$$a(X_i, W_i) = \exp(W_i\tau + X'_i\beta)$$,
+
+\begin{prop}
+\label{prop:insample} Assume unconfoundedness \eqref{unconf}, overlap $e(x) := \mathbb{E}[W_i | x] \in [\eta, 1 - \eta]$ for some $\eta > 0$ and linearity of the propensity score $e(x) = \mathbb{E}^\ast[W_i | x]$. Then the estimate $\hat \theta = \exp(\hat \tau) - 1$ in the Poission regression above converges in probability to:
+\begin{gather}
+      \hat \theta \overset{p}{\to} \theta^\ast = \frac{\mathbb{E}[\omega_i(Y_i(1) - Y_i(0))]}{\mathbb{E}[\omega_i Y_i(0)]} \label{formula:convex_ratio}
+\end{gather}
+where $\omega_i = \frac{e(X_i)(1 - e(X_i))}{1 + \theta^\ast e(X_i)}$
+\end{prop}
+
+% \textcolor{red}{give the proof intuition.}
+
+This representation allows us to interpret the estimate as a semi-elasticity coefficient. It shows the percentage increase of the average weighted outcome $\mathbb{E}[w_iY_i]$ in the case the treatment would be implemented.
+
+It is also interesting to discuss the properties of the weights. In the case, when the overall effect is close to zero ( $\theta^\ast \to 0$), the weights are close to $\omega_i \to e(X_i)(1 - e(X_i))$, which gives us weights proportional to $\mathbb{V}(W_i|X_i)$, therefore we get an Angrist-like estimand. In the case when the overall effect is large ($\theta^\ast \to \infty$), the estimand converges to the average treatment on control units with weights $\omega_i / \mathbb{E}[\omega_i] \to (1 - e(X_i)) / \mathbb{E}[1 - e(X_i)]$. If the overall effect is large and negative ($\theta^\ast \to -1$), the estimand converges to the average treatment on the treated with weights $\omega_i / \mathbb{E}[\omega_i] \to e(X_i) / \mathbb{E}[e(X_i)]$
+
+
+\subsection{Comparison to other estimators}
+
+\paragraph{Lee bounds}
+
+To further interpret this representation, we can decompose the effect into the extensive and intensive margins. \citet{chen2022log} consider a decomposition of the estimands into the extensive and intensive margins. An intentive margin is an aggregated effect of all units with an untreated outcome greater than zero $Y_i(0) > 0$. The extensive margin is the the part of the effect, where the baseline $Y_i(0)$ is zero. Recall, that $\theta_i = (Y_i(1) - Y_i(0)) / Y_i(0)$. We can decompose the considered formula as
+
+% n (see Gourieroux, Monfort
+% and Trognon (1984); Santos Silva and Tenreyro (2006); Wooldridge (2010, Chapter 18.2)) f
+    
+\begin{gather}
+      \theta^\ast = \frac{\mathbb{E}[\omega_i Y(1) \mid Y(0) = 0]}{\mathbb{E}[\omega_i Y(0)]} \mathbb{P}[Y(0) = 0] + \mathbb{E}\left[\frac{\omega_i Y(0)}{\mathbb{E}[\omega_i Y(0)]} \theta_i \mid Y(0) > 0\right] \mathbb{P}[Y(0) > 0]\label{formula:convex_margins}
+\end{gather} % make formula look better
+
+% Compare to Lee bound partially identified in Roth... (maybe bounds are wide -- also econometrics argument...)
+% Incorrect specification (correct specification)
+% derive assymptotic variance
+% Error propagation ...
+% sandwich ...
+% delta method (plugin estimator)
+
+The first term in the sum represents the extensive margin, while the second represents the intensive margin. Interestingly, when $Y_i(0)$ is always positive and therefore the extensive margin is equal to 0, the estimator can be represented as a convex average of individual ratios $\theta_i$. This is useful to compare the result to an analagous result for the log-linear regression. The log-linear regression takes a flat ($\mathbb{E}[W_i \mid X_i]$ weighted) average of the outcome, while Poisson regression additionally weights the ratio according to the sizes of the units.
+
+\section{AIPW estimator}
+
+    \textcolor{red}{Double robustness means}
+
+    In the case a researcher wants to estimate an average treatment effect $\frac{\mathbb{E}[Y(1) - Y(0)]}{\mathbb{E}[Y(0)]}$, one can use an interacted Poisson regression adjusted for propensity scores.
+
+    Consider a Poisson regression with a link function
+    $$a(X_i, W_i) = \exp(W_i\tau + X'_i\beta + W_iX'_i\gamma)$$
+
+    In analogous case for a linear regression we need to center $X$, however, this doesn't work for Poisson regression as the Poisson estimator is not linear in ... . Instead we consider the following correction:
+    \begin{equation*}
+    \hat{\tilde{\tau}} = \hat{\tau} + \log \left(\sum_{i=1}^{n}\mathrm{exp}\{X_i'(\hat{\beta} + \hat{\gamma})\}\right) - \log \left(\sum_{i=1}^{n}\mathrm{exp}\{X_i'\hat{\beta}\}\right)    
+    \end{equation*}
+
+    We now establish consistency properties of these estimators.
+
+    \begin{prop}
+    Weak double robustness:
+        $$\exp(\hat{\tilde{\tau}}) \stackrel{p}{\to} \mathbb{E}[Y(1)] / \mathbb{E}[Y(0)]$$ if either $\hat e(X) \stackrel{p}{\to} e(X)$, or $Y(1), Y(0)$ are linear in $X$
+    \end{prop}
+
+    \begin{prop}
+    Strong double robustness:
+    $$\exp(\hat{\tilde{\tau}}) \stackrel{p}{\to} \mathbb{E}[Y(1)] / \mathbb{E}[Y(0)]$$
+    if
+    $$\mathbb{E}[(\hat 
+ m_0(X) - m_0(X))^2]\mathbb{E}[(\hat e(X) - e(X))^2]  = o_p(n^{-1})$$
+    $$\mathbb{E}[(\hat m_1(X) - m_1(X))^2]\mathbb{E}[(\hat e(X) - e(X))^2] = o_p(n^{-1})$$
+    \end{prop}
+
+\section{AER overview}
+
+\textcolor{red}{Placeholder. Paper list and notes: \texttt{aer\_overview.txt}.}
+
+Each study is evaluated on three criteria:
+\begin{enumerate}
+    \item how the research question fits the estimand;
+    \item how Poisson changes the result;
+    \item why the result changes, i.e. whether the levels and the effects are correlated.
+\end{enumerate}
+
+
+
+\bibliography{references}
+
+
+\section{Appendix}
+
+\subsection{Decision theory}
+
+\begin{prop}
+    The plug-in estimate is consistent in the sense of convergence of the loss
+\end{prop}
+
+\begin{prop}
+    The plug-in estimate optimizes consistently in statistical sense
+\end{prop}
+
+\begin{prop}
+    Thinking about uniform convergence rates we maybe can also think of convergence rates of the estimate, so...
+\end{prop}
+
+As a function of $\theta$, parametrized by $\mu_\theta$ $l(\mu_\theta, a)$. Plug in $\mu_\theta$ converges fast enough (uniformly?). Now we need to show that the loss uniformly converges at the same rate. for this we need some assumptions... We need that the function at every point $a$ has a derivative bounded away from 0 at every continuity point. NO! THAT IS BAD for discontinuous but good. 
+
+ok, then we get root-n convergence. But what is the constant. 1) depends on the loss 2) depends on the plug in estimate rate 3) honestly, noone is really interested in the rate of the loss itself, even if it is testing, because there are seperate theories for that and is out of scope of the paper. Concentrating too much on admissibility puts too much pressure on irrelevant stuff! However, it is fun to show that exponential families with some regularization is a complete class. Complete class can include non-admissible estimators, but includes necc all admissible.
+
+Can I show that plug-in estimate is a complete class. Can I show that if we have a complete class of $\mu_\theta$ estimates (which loss), then we have a complete class of $a$ estimates. 
+
+Complete class means it has all admissible. No outsider can do better than insider. Well, we can think of plugin-a as a loss over mus, so in this class it is admissible. Now we need to show, that any outsider is dominated by someone in the class. 
+
+Then, is exp families essentially complete?
+
+
+
+TODO: make the result asymptotic in every aspect! Define theta and all in all make better notation
+
+proof:
+
+    $$\hat \mu(X, W) = \mathbb{E}_n(Y | X, W)$$
+    $$\hat e(X) = \mathbb{E}_n(W | X)$$
+
+    Let me define a model error at X, W as
+    $$\hat \varepsilon(X, W) = a(X, W) - \hat\mu(X, W)$$
+
+
+    To talk about in-sample properties, should I stick with linear models? With linear models the proofs work. But what about more general stuff. Well, I think it works only in asymptotics.  
+
+    Unfortunately linear thing doesn't work, because FWL kind of depends on theta.
+
+The FOCs of log-likelihood minimization are:
+\begin{gather}
+\hat \varepsilon(x, 0) (1 - \hat e(x)) + \hat \varepsilon(x, 1) \hat e(x) = 0 \label{foc1}\\
+\mathbb{E}_n[\hat \varepsilon(X, 0) (1 - \hat e(X))] = 0 \label{foc2}
+\end{gather}
+
+\begin{gather*}
+    \hat \nu(x) := a(x, 0) (1 - \hat e(x)) + a(x, 1) \hat e(x) = \\
+    \hat \mu(x, 0) (1 - \hat e(x)) + \hat \mu(x, 1) \hat e(x)
+\end{gather*}
+
+\begin{gather*}
+    \hat \nu(x) = a(x, 0) (1 + \theta^\ast \hat e(x)) = \hat \mu(x, 0) (1 + \hat \theta(x) \hat e(x)) \\
+    a(x, 0) = \frac{\hat \mu(x, 0) + (\hat \mu(x, 1) - \hat \mu(x, 0)) \hat e(x)}{1 + \theta^\ast \hat e(x)} \\
+\end{gather*}
+
+    
+
+    \begin{gather*}
+        \mathbb{E}_n[(a(X, 0) - \hat\mu(X, 0)) (1 - \hat e(X))] = 0 \\
+        \mathbb{E}_n\left[\left(\frac{\hat \mu(X, 0) + (\hat \mu(X, 1) - \hat \mu(x, 0)) \hat e(x)}{1 + \theta^\ast \hat e(X)} - \hat\mu(X, 0)\right) (1 - \hat e(X))\right] = 0 \\
+        \mathbb{E}_n\left[\frac{(\hat \mu(X, 1) - \hat \mu(X, 0) - \hat \mu(X, 0)\theta^\ast) \hat e(X)}{1 + \theta^\ast \hat e(X)} (1 - \hat e(X))\right] = 0 \\
+        \hat \theta = \frac{\mathbb{E}_n[\omega(Y(1) - Y(0))]}{\mathbb{E}_n[\omega Y(0)]}
+    \end{gather*}
+
+    Recalling that 
+    $$\hat \mu(X, W) = \mathbb{E}_n[Y| W X]$$
+
+END
+
+---
+
+Do we have any efficiency interpretation here?
+
+well, yes, if baseline is comparatively small, one need to pay attention to it.
+How to prove that it is a minimal variance estimand.
+
+FOR Linear: we can think of variance of seperate theta. Yes, variance
+
+Yes, looks like optimal, but why
+
+LEF
+
+
+Bias variance is minimized. So, yes, i tend to those te, which are better estimated.
+when te is relatively large, better pay attention to treatment arms
+
+In this case, yes, treatment part gets important if it is large
+
+\subsection{New proof}
+
+    $$\mathbb{E}[X(Y - a(X, W))] = 0$$
+    $$\mathbb{E}[W(Y - a(X, W))] = 0$$
+
+    $$\mathbb{E}[X(Y - (1 + \theta W)exp(X\beta)] = 0$$
+    $$\mathbb{E}[W(Y - (1 + \theta W)exp(X\beta)] = 0$$
+
+    $$\mathbb{E}[X(Y - (1 + \theta e(X))X^\prime\Tilde \beta] = 0$$
+    $$\mathbb{E}[W(Y - (1 + \theta W)exp(X\beta)] = 0$$
+
+    
+    $$\mathbb{E}[X(1 + \theta e(X))X^\prime]^{-1}\mathbb{E}[XY] = \Tilde \beta$$
+
+    No in-sample results
+
+
+    $$\hat \mu(X, W) = \mathbb{E}_n(Y | X, W)$$
+    $$\hat e(X) = \mathbb{E}_n(W | X)$$
+
+    Let me define a model error at X, W as
+    $$\hat \varepsilon(X, W) = a(X, W) - \hat\mu(X, W)$$
+
+
+    To talk about in-sample properties, should I stick with linear models? With linear models the proofs work. But what about more general stuff. Well, I think it works only in asymptotics.  
+
+    Unfortunately linear thing doesn't work, because FWL kind of depends on theta.
+
+The FOCs of log-likelihood minimization are:
+\begin{gather*}
+\hat \varepsilon(x, 0) (1 - \hat e(x)) + \hat \varepsilon(x, 1) \hat e(x) = 0 \\
+\mathbb{E}_n[\hat \varepsilon(X, 0) (1 - \hat e(X))] = 0
+\end{gather*}
+
+
+
+Let
+$$(\hat{\alpha}, \hat{\tau}, \hat{\beta}, \hat{\gamma}) = \mathrm{argmax}\frac{1}{n}\sum_{i=1}^{n}\{Y_i (\alpha + \tau W_i + X_i' \beta + W_i X_i' \gamma) - \exp\{\alpha + \tau W_i + X_i' \beta + W_i X_i' \gamma\}\}\frac{\Pi(W_i)}{p_i(W_i)}$$
+
+Then we can define the estimator for ratio-ATE as $\exp\{\hat{\tilde{\tau}}\}$ where 
+$$\hat{\tilde{\tau}} = \hat{\tau} + \log \left(\sum_{i=1}^{n}\mathrm{exp}\{X_i'(\hat{\beta} + \hat{\gamma})\}\right) - \log \left(\sum_{i=1}^{n}\mathrm{exp}\{X_i'\hat{\beta}\}\right)$$
+Using the same asymptotic argument we discussed weeks ago, you can show that $\exp\{\hat{\tilde{\tau}}\}\stackrel{p}{\rightarrow} E[Y(1)] / E[Y(0)]$ when $p_i$ is the true propensity score. 
+
+Now let's derive an alternative expression of $\hat{\tilde{\tau}}$. Note that 
+$$(\hat{\alpha}, \hat{\tau}) = \mathrm{argmax}\frac{1}{n}\sum_{i=1}^{n}\{Y_i(\alpha + \tau W_i + X_i' \hat{\beta} + W_i X_i' \hat{\gamma}) - \mathrm{exp}\{\alpha + \tau W_i + X_i' \hat{\beta} + W_i X_i' \hat{\gamma}\}\}\frac{\Pi(W_i)}{p_i(W_i)}$$
+
+
+Let $Z_i = \mathrm{exp}\{X_i' \hat{\beta} + W_i X_i' \hat{\gamma}\} and \tilde{Y}_i = Y_i / Z_i$. Then 
+$$(\hat{\alpha}, \hat{\tau}) = \mathrm{argmax}\frac{1}{n}\sum_{i=1}^{n}\{\tilde{Y}_i (\alpha + \tau W_i) - \mathrm{exp}\{\alpha + \tau W_i\}\}\frac{\Pi(W_i)Z_i}{p_i(W_i)}$$
+The FOC implies that 
+$$\hat{\tau} = \log\frac{\sum_{i=1}^{n}Y_i W_i / p_i(W_i)}{\sum_{i=1}^{n}Z_i W_i / p_i(W_i)} - \log \frac{\sum_{i=1}^{n}Y_i (1 - W_i) / p_i(W_i)}{\sum_{i=1}^{n}Z_i (1 - W_i) / p_i(W_i)}$$
+Based on this expression, we can show that $\hat{\tilde{\tau}}$ is weakly doubly robust. Under mild regularity conditions, even if both models are misspecified, $(\hat{\alpha}, \hat{\tau}, \hat{\beta}, \hat{\gamma})$ would have a limit which we denote by $(\alpha^{*}, \tau^{*}, \beta^{*}, \gamma^{*})$. Let $Z^{*}_i = \mathrm{exp}\{\alpha^{*} + \tau^{*}W_i + X_i \beta^{*} + W_i X_i' \gamma^{*}\}$. Then
+
+$$\hat{\tilde{\tau}} \stackrel{p}{\rightarrow} \log E[YW / p(W)] - \log E[Z^{*}W / p(W)] + \log E[\exp\{\alpha^{*} + \tau^{*} + X'(\beta^{*} + \gamma^{*})\}]$$
+
+$$ - \bigg(\log E[Y(1 - W) / p(W)] - \log E[Z^{*}(1 - W) / p(W)] + \log E[\exp\{\alpha^{*} + X'\beta^{*}\}] \bigg)$$
+
+(1) If $p_i$ is the true propensity score, 
+$$E[YW / p(W)] = E[Y(1)], E[Y(1- W) / p(W)] = E[Y(0)],$$
+
+$$E[Z^{*}W / p(W)] = E[\mathrm{exp}\{\alpha^{*} + \tau^{*} + X'(\beta^{*} + \gamma^{*})\}],$$
+
+$$E[Z^{*}(1 - W) / p(W)] = E[\mathrm{exp}\{\alpha^{*} + X'\beta^{*}\}]$$
+
+Thus, $\hat{\tilde{\tau}}\stackrel{p}{\rightarrow} \log E[Y(1)] - \log E[Y(0)]$.
+(2) If both $\log E[Y(1) \mid X]$ and $\log E[Y(0) \mid X]$ are linear in $X$, then we must have $\log E[Y(1) \mid X] = \alpha^{*} + \tau^{*} + X'(\beta^{*} + \gamma^{*})$ and $\log E[Y(0) \mid X] = \alpha^{*} + X'\gamma^{*}$ for some $\alpha^{*}, \tau^{*}$. As a result,
+
+$$\log E[Y(1)] - \log E[Y(0)] = \log E[\mathrm{exp}\{\alpha^{*} + \tau^{*}+ X' (\beta^{*} + \gamma^{*})\}] - \log E[\mathrm{exp}\{\alpha^{*}  X' \beta^{*} \}].$$
+
+On the other hand,
+$$\log E[YW / p(W)] =  \log E[Z^{*} W / p(W)],$$
+
+$$\log E[Y(1 - W) / p(W)] = \log E[Z^{*} (1 - W) / p(W)].$$
+
+Thus, $\hat{\tilde{\tau}}\stackrel{p}{\rightarrow} \log E[Y(1)] - \log E[Y(0)].$
+
+Finally, we prove the strong double robustness. Suppose $p^{*}(W)$ is the true propensity score. To simplify the notation, let $S = W / p(W) and S^{*} = W / p^{*}(W), m_1(x) = \exp\{\alpha^{*} + \tau^{*} + x'(\beta^{*} + \gamma^{*})\}, m_1^{*}(X) = \log E[Y(1) \mid X]$. Then 
+
+$$\frac{E[YW / p(W)]E[m_1(X)]}{E[m_1(X) W / p(W)]} - E[Y(1)] = E[Y(1) S] E[m_1(X)] / E[m_1(X) S] - E[Y(1)].$$
+
+Note that 
+$$E[Y(1) S]= E[Y(1)] + E[Y(1) (S - S^{*})],$$
+
+$$E[m_1(X)] = E[Y(1)]  + E[(m_1(X) - m_1^{*}(X))S^{*}],$$
+
+
+and
+$$E[m_1(X) S]= E[Y(1)] + E[Y(1) (S - S^{*})] + E[(m_1(X) - m_1^{*}(X))S^{*}]$$
+
+$$ + E[(m_1(X) - m_1^{*}(X))(S - S^{*})]$$
+
+Thus, 
+$$\frac{E[YW / p(W)]E[m_1(X)]}{E[m_1(X) W / p(W)]} - E[Y(1)] = O\bigg(E[(m_1(X) - m_1^{*}(X))(S - S^{*})]\bigg)$$
+
+Similarly,
+$$\frac{E[Y(1 - W) / p(W)]E[m_0(X)]}{E[m_0(X) (1 - W) / p(W)]} - E[Y(0)]= O\bigg(E[(m_0(X) - m_0^{*}(X))(S - S^{*})]\bigg).$$
+
+This establishes the strong double robustness of $\hat{\tilde{\tau}}$.
+
+\subsection{Proof of Angrist}
+
+    The FOCs of log-likelihood minimization are:
+
+\begin{gather}
+\mathbb{E}[X_i(Y_i - (1 + \theta W_i)\exp(X_i^\prime\beta))] = 0 \\
+\mathbb{E}[(1 - W_i)(Y_i(0) - \exp(X_i^\prime\beta))] = 0
+\end{gather}
+
+First we transform the FOC with respect to $\beta$:
+
+\begin{gather*}
+\mathbb{E}[X_i^\prime(Y_i - (1 + \theta W_i)\exp(X_i\beta))] = \\
+\mathbb{E}[X_iY_i - \textcolor{blue}{\mathbb{E}^\ast[X_i(1 + \theta W_i)\exp(X_i\beta) \mid X_i]}] = \\
+\mathbb{E}[X_iY_i - X_i\textcolor{blue}{\mathbb{E}^\ast[1 + \theta W_i\mid X_i]}\textcolor{purple}{\mathbb{E}^\ast[\exp(X_i\beta) \mid X_i]}] = \\
+\mathbb{E}[X_iY_i - X_i\textcolor{blue}{(1 + \theta e(X_i))}\textcolor{purple}{X_i^\prime\gamma}]
+\end{gather*}
+
+Here i need to explain that i run regression
+
+Also I need to be more outspoken what property do I use
+
+Another important statement in the properties -- we really can divide and multiply by anything, provided the model is correct
+
+\begin{gather*}
+X_i^\prime\gamma = \mathbb{E}^\ast[Y_i / (1 + \theta e(X_i))\mid X_i] = \mathbb{E}^\ast\left[Y_i(0) \frac{1 + \theta_i e(X_i)}{1 + \theta e(X_i)}\mid X_i\right]
+\end{gather*}
+
+    \begin{gather*}
+        \mathbb{E}[(1 - W_i)(Y_i(0) - \exp(X_i^\prime\beta))] = 0 \\
+        \mathbb{E}\Big[(1 - \hat e(X_i))\Big(\mathbb{E}^\ast[Y_i(0) \mid X_i] - X_i^\prime \gamma \Big)\Big] = 0 \\
+        \mathbb{E}\left[(1 - \hat e(X_i))\left(\mathbb{E}^\ast[Y_i(0) \mid X_i] - \mathbb{E}^\ast\left[Y_i(0)\frac{1 + \theta_i e(X_i)}{1 + \theta e(X_i)} \mid X_i\right]\right)\right] = 0 \\
+        \mathbb{E}\left[(1 - \hat e(X_i))\left(Y_i(0) - Y_i(0)\frac{1 + \theta_i e(X_i)}{1 + \theta e(X_i)}\right)\right] = 0 \\
+        \theta = \frac{\mathbb{E}\left[\frac{e(X_i)(1 - e(X_i))}{1 + \theta e(X_i)}(Y_i(1) - Y_i(0))\right]}{\mathbb{E}\left[\frac{e(X_i)(1 - e(X_i))}{1 + \theta e(X_i)}Y_i(0)\right]}
+    \end{gather*}
+
+
+\subsection{Proof of double robustness}
+\label{proof:aipw}
+Let $\hat Z_i = \mathrm{exp}\{X_i' \hat\beta + W_i X_i' \hat\gamma\}$ and $\tilde{Y}_i = Y_i / \hat Z_i$. Then 
+
+$$(\hat{\alpha}, \hat{\tau}) = \mathrm{argmax}\frac{1}{n}\sum_{i=1}^{n}\{\tilde{Y}_i (\alpha + \tau W_i) - \mathrm{exp}\{\alpha + \tau W_i\}\}\frac{\Pi(W_i)\hat Z_i}{p_i(W_i)}$$
+The FOC implies that 
+$$\hat{\tau} = \log\frac{\sum_{i=1}^{n}Y_i W_i / p_i(W_i)}{\sum_{i=1}^{n}\hat Z_i W_i / p_i(W_i)} - \log \frac{\sum_{i=1}^{n}Y_i (1 - W_i) / p_i(W_i)}{\sum_{i=1}^{n}\hat Z_i (1 - W_i) / p_i(W_i)} \stackrel{p}{\to}$$
+$$\log\frac{\mathbb{E}[Y_i W_i / p_i(W_i)]}{\mathbb{E}[\hat Z_i W_i / p_i(W_i)]} - \log \frac{\mathbb{E}[Y_i (1 - W_i) / p_i(W_i)]}{\mathbb{E}[\hat Z_i (1 - W_i) / p_i(W_i)]}$$
+
+
+Weak double robustness: if $\hat p_i \stackrel{p}{\to} p_i$
+$$\log\frac{\mathbb{E}[Y_i W_i / p_i(W_i)]}{\mathbb{E}[\hat Z_i W_i / p_i(W_i)]} - \log \frac{\mathbb{E}[Y_i (1 - W_i) / p_i(W_i)]}{\mathbb{E}[\hat Z_i (1 - W_i) / p_i(W_i)]}$$
+
+Consider each term separately:
+
+$$\mathbb{E}[Y_i W_i / p_i(W_i)] = \mathbb{E}[Y_i(1)], \mathbb{E}[Y_i (1 - W_i) / p_i(W_i)] = \mathbb{E}[Y_i(0)],$$
+$$\mathbb{E}[\hat Z_iW_i / p(W_i)] = \mathbb{E}[\mathrm{exp}\{X_i'(\hat \beta + \hat \gamma)\}],$$
+$$\mathbb{E}[\hat Z_i(1 - W_i) / p(W_i)] = \mathbb{E}[\mathrm{exp}\{X_i'\hat \beta]$$
+
+\begin{gather*}
+  \hat{\tau} \stackrel{p}{\to} \log \mathbb{E}[Y_i(1)] - \log \mathbb{E}[Y_i(0)] - \log \mathbb{E}[\exp\{X_i'(\hat \beta + \hat \gamma)\}] + \\
+  \log \mathbb{E}[\mathrm{exp}\{X_i'\hat \beta\}]  
+\end{gather*}
+$$\hat{\tilde{\tau}} \stackrel{p}{\to} \log \mathbb{E}[Y_i(1)] - \log \mathbb{E}[Y_i(0)]$$
+
+Weak double robustness: if $Y(0), Y(1)$ are linear
+
+If Y(0) and Y(1) are correctly specified, then:
+$$\log \mathbb{E}[Y_iW_i / p(W_i)] =  \log \mathbb{E}[\hat Z_i W_i / p(W_i)] + \alpha + \tau,$$
+$$\log \mathbb{E}[Y_i(1 - W_i) / p(W_i)] = \log \mathbb{E}[\hat Z_i (1 - W_i) / p(W_i)] + \alpha$$
+
+Plugging these into $\hat \tau$ we get a consistent estimate of $\tau$:
+
+$$\hat{\tau} \stackrel{p}{\to} \tau$$
+
+We also have: $\hat{\beta} \stackrel{p}{\to} \beta$, $\hat{\gamma} \stackrel{p}{\to} \gamma$
+
+\begin{gather*}
+    \hat{\tilde{\tau}} \stackrel{p}{\to} \log \mathbb{E}[\exp\{X_i'(\beta + \gamma + \alpha + \tau)\}] - \log \mathbb{E}[\mathrm{exp}\{X_i'\beta + \alpha\}] = \\
+    \log \mathbb{E}[Y(1)] - \log \mathbb{E}[Y(0)]
+\end{gather*}
+
+\end{document}

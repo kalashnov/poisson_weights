@@ -1,0 +1,167 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
+\usepackage{hyperref}
+\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools}
+\usepackage{hyphenat}
+\usepackage{subfig}
+
+%%% PAGE DIMENSIONS
+\usepackage[left=2cm,right=2cm,
+    top=2cm,bottom=2cm,bindingoffset=0cm]{geometry} % to change the page dimensions
+\geometry{a4paper}
+
+\usepackage[natbibapa]{apacite}
+\bibliographystyle{apacite}
+
+\usepackage{cmap}					% поиск в PDF
+\usepackage[T2A]{fontenc}			% кодировка
+\usepackage[utf8]{inputenc}			% кодировка исходного текста
+\usepackage[english]{babel}	% локализация и переносы
+\usepackage{float}
+\date{}
+\setlength{\parindent}{1em}
+\setlength{\parskip}{1em}
+\renewcommand{\baselinestretch}{1.3}
+
+
+\theoremstyle{plain}
+\newtheorem{prop}{Proposition}
+
+\newtheorem{conj}[prop]{Conjecture}
+\newtheorem{coro}[prop]{Corollary}
+\newtheorem{lemm}[prop]{Lemma}
+\newtheorem{theo}[prop]{Theorem}
+
+\theoremstyle{plain}
+\newtheorem{exam}{Example}
+\newtheorem{defi}{Definition}
+\newtheorem{comm}{Comment}
+\newtheorem{rema}{Remark}
+
+
+
+% СОКРАТИТЬ LB
+
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{result}{Result}
+\title{Notes for Poisson regression under heterogeneous treatment effects}
+\author{Georgy Kalashnov, Lihua Lei}
+
+\begin{document}
+\maketitle
+
+\section{Examples of paper, which should want}
+
+$f(g(\mathbb{E}[Y_i(1)]) - g(\mathbb{E}[Y_i(0)]))$
+
+%-- Diamond + CES aggregators
+%-- Sandorminsky + some empirical paper
+% -- ???
+
+
+\section{Decision theoretic argument for glm-type estimator/estimand}
+
+
+Consider a following model: we have $(Y, X, W)$ distribution. Assume unconfoundedness $Y(w) \perp W | X$. The potential outcomes $Y(W)$ are parametrized with $\theta$. Define a function $\mu_\theta: W \to \mathbb{R}$ as $\mu_\theta(w) = \mathbb{E}[Y_\theta(w)]$  Consider a decision problem with a loss function of the following form: $l(\mu_\theta, a)$. We maximize $l$. For now $W$ is abstract and can be $\{0, 1\}$ or anything.
+
+Now, when we solve this, we get a solution $a^\ast$ that is a function of $\mu_\theta(.)$.  The question is only, what kind of problems lead to this kind of loss function. Can we think of it axiomatically?
+
+Further, if the problem is anti symmetric, meanin that $l(\mu_\theta, a)$ is anti symmetric in $W$ (switching $W=0$ to $1$ and $a$ to $-a$ doesn't change the solution/parameter of interest), we can write
+
+\[f(g(\mathbb{E}[Y_i(1)]) - g(\mathbb{E}[Y_i(0)]))\]
+
+This is like constant causal contrast, but instead, we have a function applied after E. So adding something to all Y wouldn't help. But here we instead add something after applying a function $g$. 
+
+So, level irrelevance would be as follows:
+
+suppose there exists some function $g$ such that redefining $g(\mu) = g(\mu + 1)$ doesn't change the solution. Then, we are dealing with this glm setting.
+
+Can we interpret level irrelevance property? Like for poisson regression this would exactly be the percentage property. And it will be in a lot way better then that log thing.
+
+\subsection{discussion and comparison and examples}
+
+...
+...
+
+Rebecca diamond paper is measuring weather, not laspeyres index. Elaborate.
+
+CES aggregator functions of CES of the same order (counter example)
++ ???
+
+Some time series shit
+
+
+\section{Understanding best estimand}
+
+I want to show that the glm weighted regression is the semi-parametrically efficient estimate of the weighted estimand.
+
+I will start with linear. Freedman + weighting. 
+
+
+Plan for this section: formulate the score function and project it onto tangent space.
+
+I first need to come up with a moment.
+
+\[\mathbb{E}[Y - f(\eta_0(X)W + \eta_1(X)(1 - W)) \mid X W]\]
+\[\mathbb{E}[Y - \mu_0(X)W + \mu_1(X)(1 - W) \mid X W]\]
+
+For poisson:
+
+\[\mathbb{E}[Y - \exp(\eta_1(X)W + \eta_0(X)(1 - W) + \tau W) \mid X W]\]
+
+$$\hat{\tilde{\tau}} = \hat{\tau} + \log \left(\sum_{i=1}^{n}\mathrm{exp}\{\eta_1(X)\}\right) - \log \left(\sum_{i=1}^{n}\mathrm{exp}\{\eta_0(X)\}\right)$$
+
+$$\hat{\tilde{\tau}}  - \log \left(\sum_{i=1}^{n}\mathrm{exp}\{\eta_1(X)\}\right) + \log \left(\sum_{i=1}^{n}\mathrm{exp}\{\eta_0(X)\}\right) = \hat{\tau}$$
+
+\[\mathbb{E}[Y - \exp(\eta_1(X)W + \eta_0(X)(1 - W) + W\tilde{\tau}  - W\log \left(\sum_{i=1}^{n}\mathrm{exp}\{\eta_1(X)\}\right) + W\log \left(\sum_{i=1}^{n}\mathrm{exp}\{\eta_0(X)\}\right)) \mid X W]\]
+
+\[\mathbb{E}[Y - \exp(\eta_0(X) + (\eta_1(X) - \log \left(\sum_{i=1}^{n}\mathrm{exp}\{\eta_1(X)\}\right))W - W (\eta_0(X) - \log \left(\sum_{i=1}^{n}\mathrm{exp}\{\eta_0(X)\}\right))  + W\tilde{\tau}) \mid X W]\]
+
+Plug in $W = 1$:
+
+\[\mathbb{E}[Y - \exp(\eta_1(X) + \tilde{\tau}) * \sum_{i=1}^{n}\mathrm{exp}\{\eta_0(X)\} / \sum_{i=1}^{n}\mathrm{exp}\{\eta_1(X)\}  \mid X W = 1]\]
+
+\[\mathbb{E}[Y - \exp(\eta_0(X))  \mid X W = 0]\]
+
+other way could be:
+
+
+
+Now we are interested in estimating $f(g(\mathbb{E}[Y_i(1)]) - g(\mathbb{E}[Y_i(0)]))$. with the only property we are interested is level irrelevance.
+
+Now, suppose we want to estimate it in the best way in a semi-parametric model. Show that the AIPW we chose is semiparametrically efficient. We can also either put no constraints, or to put a constraint on the mean prediction of the estimator.
+
+Why linear model could be something we really want is another question, even under assumed linearity of something.
+
+Best then would be AIPW ratio. It can also be AIPW poisson. Which one?
+
+
+
+
+\[X(Y - g(W \tau + X \beta))\]
+
+
+\subsection{Discussion of other estimands}
+
+Lin, Freedman, just weighting
+
+\section{Find best weights for some GLMs. Show the algorithm to get these weights}
+
+We first need to define, what are the feasible weights to talk about.
+Then...
+
+\section{Literature}
+
+relate to friedman results and lin results
+
+\section{Flexible controls}
+
+example linear
+example poisson
+???
+
+
+\section{solving bias variance tradeoff in Spiess framework}
+
+\end{document}
