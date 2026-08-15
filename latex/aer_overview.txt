@@ -1,0 +1,137 @@
+AER OVERVIEW -- WORKING PAPER LIST
+Moved out of main.tex (section "AER overview"), 2026-08-13.
+
+Each paper is to be evaluated on three criteria:
+  (a) how the research question fits the estimand
+  (b) how Poisson changes the result
+  (c) why the result changes -- is there any correlation of the levels and the effects
+
+Status key:  [ ] not started   [~] in progress   [x] done
+
+
+GENERAL NOTES
+-------------
+- Policy effect after deployment: then Poisson regression makes more sense.
+- State as an object of analysis.
+
+
+1. ALREADY USES POISSON
+-----------------------
+[ ] 10.1257/aer.20191594
+    https://pubs.aeaweb.org/doi/pdfplus/10.1257/aer.20191594
+    note: Poisson here.
+
+
+2. AGGREGATION-MOTIVATED OUTCOME
+   (the ratio of means is plausibly the target; closest to the paper's own examples)
+--------------------------------
+[ ] 10.1257/aer.20200025
+    https://pubs.aeaweb.org/doi/pdfplus/10.1257/aer.20200025
+    note: production aggregation -- tough.
+
+[ ] 10.1257/aer.20171397
+    https://pubs.aeaweb.org/doi/pdfplus/10.1257/aer.20171397
+    note: demand, individual-wise aggregation.
+
+[ ] 10.1257/aer.20200513
+    https://pubs.aeaweb.org/doi/pdfplus/10.1257/aer.20200513
+    note: shares outcome.
+
+[ ] 10.1257/aer.20201063
+    https://www.aeaweb.org/articles?id=10.1257/aer.20201063
+    note: supply elasticity.
+
+[ ] cite key: diamond2021standard          <-- REFERENCE UNRESOLVED
+    note: price indexes. Cited in the draft as the case where a researcher
+          wants the percentage interpretation for its own sake, rather than
+          for external validity or for identification.
+    cited at: main.tex intro (\citep, "e.g. in price indexes") and in the
+          commented-out intro TODO on examples of studies ("retention analysis
+          in industry, small units governance, prices").
+    todo: no DOI/URL yet -- the full reference is not in the Zotero library and
+          is not resolvable from the draft, which gives only the cite key.
+          Identify the paper, add it to Zotero with a PDF, then add it to
+          references.bib (it is one of the 10 keys still unresolved at build).
+
+
+3. EXTENSIVE / INTENSIVE MARGIN
+-------------------------------
+[ ] 10.1257/aer.101.3.471
+    https://pubs.aeaweb.org/doi/pdfplus/10.1257/aer.101.3.471
+    note: demand + extensive/intensive + Frisch.
+
+[ ] 10.1257/aer.20190415
+    https://pubs.aeaweb.org/doi/pdfplus/10.1257/aer.20190415
+    note: extensive and intensive.
+
+
+4. LOG USED, JUSTIFICATION UNCLEAR
+----------------------------------
+[ ] 10.1257/aer.20191586
+    https://pubs.aeaweb.org/doi/pdfplus/10.1257/aer.20191586
+    note: why log?
+
+[ ] 10.1257/aer.20191780
+    https://www.aeaweb.org/articles?id=10.1257/aer.20191780
+    note: why log?
+
+
+5. INTERESTING, MOTIVATION UNCLEAR
+----------------------------------
+[ ] 10.1257/aer.111.5.1383
+    https://pubs.aeaweb.org/doi/pdf/10.1257/aer.111.5.1383
+    note: interesting but why?????
+
+[ ] 10.1257/aer.20201248
+    https://www.aeaweb.org/articles?id=10.1257/aer.20201248
+    note: interesting but why?????
+
+[ ] 10.1257/aer.20211252
+    https://www.aeaweb.org/articles?id=10.1257/aer.20211252
+    note: WHY???
+
+[ ] 10.1257/aer.20191099
+    https://www.aeaweb.org/articles?id=10.1257/aer.20191099
+    note: ???
+
+
+6. LEVELS VS EFFECTS -- CANDIDATE FOR CRITERION (c)
+---------------------------------------------------
+[ ] 10.1257/aer.20190759
+    https://pubs.aeaweb.org/doi/pdfplus/10.1257/aer.20190759
+    note: effect of epidemic on house prices -- and wealth.
+
+
+7. NO LOGS
+----------
+[ ] 10.1257/aer.20220129
+    https://pubs.aeaweb.org/doi/pdfplus/10.1257/aer.20220129
+    note: interesting but no logs.
+
+
+8. METHODS
+----------
+[ ] 10.1257/aer.20210254
+    https://pubs.aeaweb.org/doi/pdfplus/10.1257/aer.20210254
+    note: matching multipliers, as recommended by Carlos.
+
+
+9. NOT YET TRIAGED
+------------------
+[ ] 10.1257/aer.20191178
+    https://pubs.aeaweb.org/doi/pdfplus/10.1257/aer.20191178
+
+[ ] 10.1257/aer.20210616
+    https://www.aeaweb.org/articles?id=10.1257/aer.20210616
+
+[ ] 10.1257/aer.20201073
+    https://www.aeaweb.org/articles?id=10.1257/aer.20201073
+
+[ ] 10.1257/aer.20200208
+    https://www.aeaweb.org/articles?id=10.1257/aer.20200208
+
+[ ] 10.1257/aer.20170768
+    https://www.aeaweb.org/articles?id=10.1257/aer.20170768
+
+
+COUNT: 22 papers (1 with an unresolved reference).

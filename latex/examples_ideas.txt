@@ -1,0 +1,56 @@
+EXAMPLES -- IDEAS NOT YET WRITTEN
+Moved out of main.tex, 2026-08-13. These were headings in the draft with no
+content under them. Line numbers refer to main.tex before removal.
+
+Examples that DO have content stay in the draft: non-linear least squares and
+statistical testing, policy evaluation, production aggregation, Lerner index
+(store-level data).
+
+
+DISTRIBUTION EXAMPLES
+---------------------
+[201-203]  Was subsection 4.1, "Important distribution examples".
+           Work out the estimand for each of: linear, Poisson, logit.
+
+
+INSTRUMENTAL LOSSES, OR RATHER PLUGINS?
+---------------------------------------
+[207-211]  CATE thing. Instrumental plugins don't really work; we just need
+           some other conditional thing there -- think about it.
+           Also: moment matching.
+
+
+DEMAND ESTIMATION
+-----------------
+[255-257]  BLP is the evident case. The point is to cover the less evident
+           models.
+
+
+EXPENDITURE AGGREGATION
+-----------------------
+[259-261]  Build the example around Deaton & Muellbauer (almost ideal demand
+           system) and Sandomirskiy (geometry). Cite keys in the draft:
+           deaton1980almost, sandomirskiy2022geometry -- neither is in the
+           Zotero library yet.
+
+
+LERNER INDEX -- FIRM-LEVEL DATA
+-------------------------------
+[280-282]  Market concentration index. The store-level version is already
+           derived in the draft; this is the firm-level counterpart.
+
+
+TRADE
+-----
+[284-286]  The example of logs in the trade literature -- source lost, needs
+           to be found again.
+           Related, from the Lerner index notes still in the draft: in trade
+           people use Poisson regression because they think the outcome is a
+           count.
+
+
+FROM THE DELETED SECTION 2
+   ("Average Marginal effect, comment on non-linearity")
+--------------------------------------------------------
+[148-152]  Say more about what "multiplicative" means.
+           Logit and shares data, e.g. PLM.

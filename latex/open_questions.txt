@@ -1,0 +1,66 @@
+OPEN RESEARCH QUESTIONS
+Moved out of main.tex, 2026-08-13. Line numbers refer to main.tex as it stood
+before removal.
+
+
+EFFICIENCY OF THE AIPW ESTIMATOR
+--------------------------------
+[774-779] Is the corrected estimator always more efficient than the unadjusted
+          Poisson regression?
+[774-779] Is it semiparametric efficient in any sense?
+[885]     Efficiency question???
+
+
+SCOPE OF THE FRAMEWORK
+----------------------
+[284]     Does this include diff-in-diff types?
+[883]     Can we make here a theory of an "identifying model"?
+[887]     It may be sensible to use Poisson for wait-time data if we need the
+          total effect.
+[948]     We can do logit for really small probabilities and say it is like
+          Poisson.
+
+
+WHAT EACH METHOD CAN IDENTIFY
+-----------------------------
+[630]     What can and cannot be effectively identified with log-linear and
+          Poisson regression. E.g. with Poisson we know nothing about the small
+          units once there are large ones; with log-linear the small subjects
+          are the problem -- they bring the variance.
+
+
+INTERPRETATION OF LOGS
+----------------------
+[66]      For the intro: distinguish the non-linearity interpretation of logs
+          from the percentages interpretation of logs.
+
+
+SPECIFICATION AND STATEMENT OF THE RESULTS
+------------------------------------------
+[403]     Does Proposition \ref{prop:insample} need a variance statement?
+[449]     What to do with the constant included in X under the interacted
+          specification?
+[432]     Maybe Poisson is more efficient for estimating the case of a zero
+          baseline.
+
+
+FIRST-STAGE / SECOND-STAGE WEIGHTING MISMATCH
+---------------------------------------------
+[908]     The reason for the mismatch is precisely the mismatch in the weighting
+          of the first stage and the second stage. Can we somehow bring them to
+          a common one? Iteratively?
+[910]     Theorem? There exist weights...
+[912]     Does it help to derive weights? Yes. The weights are only for Y (for W
+          is also fine if it helps).
+[914]     If I find them, it will allow me to reason about the balancing
+          estimator weights.
+
+
+FREEDMAN VS ANGRIST
+-------------------
+[922]     A thing I do not understand. If Freedman says that there is a small
+          sample bias, is it also the case with binary controls? It seems so,
+          but it doesn't really work with the Angrist result, does it? So is it
+          more about linear misspecification?
+
+
