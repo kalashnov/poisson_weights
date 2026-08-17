@@ -40,6 +40,7 @@ This matches the user-level VS Code build config.
 - `\tag` doesn't render in chat, do not use it in chat
 - do not use "vanishes", instead, say more specifically, e.g. "equals to 0."
 - When defining notation, do not use "write", write instead "let"
+- Do not use the word "display" refering to a formula. If you want to reference formula, either call it by it's name, or use `\eqref`
 
 ## What to include
 
